@@ -27,3 +27,36 @@ for i = 1 : numTrial
 end
 
 plot(V);
+%% Mackintosh Model
+% Constants
+% learning rate AND "stimulus-specific parameter" : alpha.
+% this sometimes referred as saliency
+alpha = 0.9;
+
+if abs(lambda - Va) < abs(lambda - sum(V)
+    deltaAlpha = deltaAlpha * 1.1;
+else
+    deltaAlpha = deltaAlpha * 0.9;
+end
+
+size of change in alpha : 
+
+%% Run
+numTrial = 100;
+experiment = condition{1};
+V = zeros(numTrial,1);
+for i = 1 : numTrial
+    if experiment(i,3) == 1 % acq
+        deltaV = lr_acq * experiment(i,2) * (lambda - V(i));
+    elseif experiment(i,3) == 0 % ext
+        deltaV = lr_ext * experiment(i,2) * (lambda - V(i));
+    end
+    if abs(lambda - V(i) < abs(lambda - sum(V(i))
+        deltaAlpha  = deltaAlpha * 1.1;
+    else
+        deltaAlpha = deltaAlpha * 0.9;
+    end
+    V(i+1) = V(i) + deltaV;
+end
+
+%% Pearson Hall
