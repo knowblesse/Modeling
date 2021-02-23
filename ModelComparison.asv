@@ -129,7 +129,7 @@ title('Pearson-Hall');
 phi = 1;
 
 figure(4);
-set(gcf,'Position',[0, 0, 1179, 611]);
+set(gcf,'Position',[-1775, 167, 1179, 611]);
 clf;
 hold on;
 
