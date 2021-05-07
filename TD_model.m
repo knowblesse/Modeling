@@ -9,10 +9,21 @@ ITI = 100;
 trial_length = max(CS.length,US.end) + ITI;
 
 %% Schedule
-schedule = [...
-    repmat([1,0,0,1,0,0,0,1], 70,1);...
-    repmat([1,0,0,0,0,0,0,1], 100,1)...
+
+schedule1 = [...
+    1,0,0,1,0,0,0,.5;...
+    1,0,0,1,0,0,0,.5;...
     ];
+schedule = repmat(schedule1,100,1);
+schedule = schedule(randperm(size(schedule,1)),:);
+
+
+
+
+% schedule = [...
+%     repmat([1,0,0,1,0,0,0,1], 70,1);...
+%     %repmat([1,0,0,0,0,0,0,1], 100,1)...
+%     ];
 
 %% Second-order conditioning
 CS1_first = [...
@@ -33,10 +44,10 @@ for s = 1 : size(schedule,1)
 end
 clearvars temp
 
-newSchedule = [...
-    newSchedule;...
-    repmat(CS1_first,50,1)...
-    ];
+% newSchedule = [...
+%     newSchedule;...
+%     repmat(CS1_first,50,1)...
+%     ];
 
 %% Run
 totalTime = size(newSchedule,1);
@@ -86,11 +97,11 @@ fprintf('%.2f, %.2f %.2f\n',w(end,:))
 
 %% Plot
 plot_range.start = 1;
-plot_range.end = 170;
+plot_range.end = size(schedule,1);
 
 %% Plot All 
 figure(2);
-clf;
+%clf;
 subplot(5,1,1);
 hold on;
 
@@ -116,7 +127,7 @@ title('y');
 
 subplot(5,1,4:5);
 %plot(w(1:plot_range,1));
-%hold on;
+hold on;
 line = plot(...
     trial_length * (plot_range.start-1) + 1 : trial_length : trial_length * plot_range.end,...
     w_trial(plot_range.start:plot_range.end,:));
