@@ -5,6 +5,9 @@ function app = CCC_exported(schedule, mode)
 % Author : 
 %       2021 Knowblesse
 % 
+%% TODO LIST
+% TD Model parameters
+% PH add new paramters
 
 %% Parameters
 app = struct();
@@ -18,7 +21,7 @@ app.paramM_lr_ext.Value = 0.05;
 app.paramM_k.Value = 0.01;
 app.paramM_e.Value = 0.02;
 
-% Pearson-Hall Model
+% Pearce-Hall Model
 app.paramPH_SA.Value = 0.02;
 app.paramPH_SB.Value = 0.02;
 app.paramPH_SC.Value = 0.02;
@@ -53,6 +56,7 @@ app.Tab_M = [];
 app.Tab_PH = [];
 app.Tab_EH = [];
 app.Tab_SPH = [];
+app.Tab_TD = [];
 app.ModelButtonGroup = struct();
 
 
@@ -64,9 +68,11 @@ switch(mode)
     case(2)
         app.ModelButtonGroup.SelectedObject.Text = 'Mackintosh';
     case(3)
-        app.ModelButtonGroup.SelectedObject.Text = 'Schmajuk-P-H';
+        app.ModelButtonGroup.SelectedObject.Text = 'Pearce-Hall';
     case(4)
         app.ModelButtonGroup.SelectedObject.Text = 'Esber-Haselgrove';
+    case(5)
+        app.ModelButtonGroup.SelectedObject.Text = 'Temporal-Difference';
 end
 
 
@@ -130,13 +136,13 @@ switch(selectedButton.Text)
             deltaV = app.alpha(t,:) .* CS .* lr .* (Lambda - app.V(t,:)); % not Vtot
 
             % alpha change
-            deltaAlpha = CS * app.paramM_k.Value .* (abs(Lambda - (Vtot - app.V(t,:))) - abs(Lambda - app.V(t,:)));
+            deltaAlpha = CS * app.paramM_k.Value .* (abs(Lambda - (Vtot - app.V(t,:))) - abs(Lambda - app.V(t,:)-app.paramM_e.Value));
             newAlpha = min(max(app.alpha(t,:) + deltaAlpha,[0,0,0]),[1,1,1]); % alpha value should be in range [0,1]
 
             app.V(t + 1,:) = app.V(t,:) + deltaV;
             app.alpha(t + 1, :) =newAlpha;
         end
-    case('Pearson-Hall')
+    case('Pearce-Hall')
         app.TabGroup.SelectedTab = app.Tab_PH;
         % Do Simulation
         app.alpha(1,:) = schedule(1,5:7);
@@ -178,7 +184,7 @@ switch(selectedButton.Text)
 
             Lambda = US .* schedule(t,8);
 
-            newAlpha = phi + (app.V_pos(t,:) + app.V_bar(t,:)) - app.paramEH_k.Value * V_pre;
+            newAlpha = phi + (app.V_pos(t,:) + app.V_bar(t,:))/2 - app.paramEH_k.Value * V_pre;
 
             if((Lambda - (V_pos_tot - V_bar_tot)) > 0)
                 beta_pos = app.paramEH_lr1_acq.Value;
@@ -200,7 +206,7 @@ switch(selectedButton.Text)
                 app.V_bar(t+1,:) = app.V_bar(t,:) + deltaV_bar;
             end
             app.alpha(t,:) = newAlpha;
-            V_pre = V_pre + app.paramEH_lr_pre.Value * (CS - V_pre);
+            V_pre = V_pre + app.paramEH_lr_pre.Value .* newAlpha .* (CS - sum(V_pre)) .* CS;
         end
 
     case('Schmajuk-P-H')
@@ -246,6 +252,61 @@ switch(selectedButton.Text)
             app.V(t,:) = V;
             app.V_pos(t+1,:) = app.V_pos(t,:) + deltaV_pos;
             app.V_bar(t+1,:) = app.V_bar(t,:) + deltaV_bar;
+        end
+    case('Temporal-Difference')
+        app.TabGroup.SelectedTab = app.Tab_TD;
+        %% Parameters
+        CS.length = 4;
+        US.start = 9; % US must be presented after the CS
+        US.end = 10; 
+        ITI = 100;
+        beta = 0.87;
+        c = 0.1; 
+        gamma = 0.95;
+        
+        %% Stretch the schedule to include time factor
+        trial_length = max(CS.length,US.end) + ITI;
+        newSchedule = zeros(trial_length * size(schedule,1),8);
+        for s = 1 : size(schedule,1)
+            temp = zeros(trial_length,8);
+            temp(1:CS.length,[1,2,3,5,6,7]) = repmat(schedule(s,[1,2,3,5,6,7]),CS.length,1);
+            temp(US.start:US.end,[4,8]) = repmat(schedule(s,[4,8]),US.end-US.start+1,1);
+            newSchedule(trial_length*(s-1)+1 : trial_length*s,:) = temp;
+        end
+        clearvars temp
+        
+        
+        %% Initialize
+        totalTime = size(newSchedule,1);
+        y = zeros(totalTime,1);
+        r = zeros(totalTime,1);
+        x_bar = zeros(totalTime,3);
+        x = zeros(totalTime,3);
+        w = zeros(totalTime,3);
+        %w(1,:) = newSchedule(1,5:7);
+
+        %% Do Simulation
+        trial = 1;
+        for t = 1 : size(newSchedule,1)
+            US_weight = newSchedule(t,8);
+            US_presence = newSchedule(t,4);
+            x(t,:) = newSchedule(t,1:3);
+            r(t) = US_weight * US_presence;
+            y(t) = r(t) + max(w(t,:) * x(t,:)',0);
+            if t == 1
+                x_bar(t,:) = 0; %eligibility traces
+                w(t+1,:) = w(t,:) + c*(r(t) + gamma*max(w(t,:) * x(t,:)',0) )*x_bar(t,:);
+            else
+                x_bar(t,:) = beta .* x_bar(t-1,:) + (1-beta) .* x(t-1,:); %eligibility traces
+                w(t+1,:) = w(t,:) + c.*(...
+                    r(t) + gamma .* max(w(t,:) * x(t,:)',0) - max(w(t,:) * x(t-1,:)',0)...
+                    )*x_bar(t,:); % during the CS presentaion, gamma value makes the delta w negative proportional to it's weight.
+            end
+
+            if rem(t, trial_length) == 0
+                app.V(trial,:) = w(t,:); % save the last weight value from every trial as V
+                trial = trial + 1;
+            end
         end
 end
 end       

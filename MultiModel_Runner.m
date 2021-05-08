@@ -87,21 +87,34 @@ schedule_partial_1 = [...
     ];
 
 
-schedule = schedule_acq_ext;
+schedule = schedule_blocking;
 model = 1;
 model_names = {'Rescorla-Wagner', 'Mackintosh', 'Pearce-Hall', 'Esber-Hasselgrove', 'Temporal Difference'};
-% Model : 1|RW    2|M    3|SPH    4|EH
+% Model : 1|RW    2|M    3|PH    4|EH    5|TD
 
 fig1 = figure(1);
-fig1.Position = [0,300,900,600];
-clf(fig1);
-for model = 1 : 4
+fig1.Position = [-1699         390         845         462];
+
+for model = 1:5
     app = CCC_exported(schedule,model);
-    ax = subplot(2,3,model,'Parent',fig1);
-    plot(app.V(:,1),'Color',CC.CS1,'LineWidth',2);
+    clf(fig1);
+    %ax = subplot(2,3,model,'Parent',fig1);
     hold on;
-    plot(app.alpha(:,1),'Color',CC.CS1,'LineStyle','--','LineWidth',2);
+    v_plot_1 = plot(app.V(:,1),'Color',CC.CS1,'LineWidth',2);
+    v_plot_2 = plot(app.V(:,2),'Color',CC.CS2,'LineWidth',2);
+    a_plot_1 = plot(app.alpha(:,1),'Color',CC.CS1,'LineStyle','--','LineWidth',2);
+    a_plot_2 = plot(app.alpha(:,2),'Color',CC.CS2,'LineStyle','-.','LineWidth',2);
     title(model_names{model});
+    xlabel('Trial');
+    ylabel('V');
+    xlim([0,120]);
+    ylim([0,1]);
+    if model == 5
+        ylabel('w');
+        a_plot_1.Visible = false;
+        a_plot_2.Visible = false;
+    end 
+    saveas(fig1,strcat(model_names{model},'_Blocking'),'png');
 end   
     
     
