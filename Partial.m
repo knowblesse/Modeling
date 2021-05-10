@@ -3,6 +3,7 @@
 %% Design
 CC.CS1 = [113,204,255]/255;
 CC.CS2 = [130,196,124]/255;
+CC.CS3=
 CC.US  = [234,129,147]/255;
 
 
@@ -12,34 +13,37 @@ CC.US  = [234,129,147]/255;
 % +------+------+------+------+----------+---------+---------+--------+
 % | CS A | CS B | CS C | US   | alpha A  | alpha B | alpha C | lambda |
 % +------+------+------+------+----------+---------+---------+--------+
+%% Partial Reinforcement Schedule
 
-schedule_acq_ext = [...
-    repmat([1,0,0,1,0.5,0.5,0.5,1], 100,1);...
-    repmat([1,0,0,0,0.5,0.5,0.5,0], 100,1)...
-    ];
+% for comparision
+schedule_acq_half = repmat([1,0,0,1,0.5,0.5,0.5,.5], 200,1);
 
-schedule_blocking = [...
-    repmat([1,0,0,1,0.5,0.5,0.5,1], 20,1);...
-    repmat([1,1,0,1,0.5,0.5,0.5,1], 100,1)...
+% half alternating
+schedule_half_alternating = [...
+    1,0,0,1,0.5,0.5,0.5,1;...
+    1,0,0,1,0.5,0.5,0.5,1;...
+    1,0,0,0,0.5,0.5,0.5,1;...
+    1,0,0,0,0.5,0.5,0.5,1;...
     ];
+schedule_half_alternating = repmat(schedule_half_alternating,50,1);
 
-schedule_latent_inhibition = [...
-    repmat([1,0,0,0,0.5,0.5,0.5,0], 100,1);...
-    repmat([1,0,0,1,0.5,0.5,0.5,1], 100,1)...
-    ];
-schedule_latent_inhibition_cmp = [...
-    repmat([0,0,0,0,0.5,0.5,0.5,0], 100,1);...
-    repmat([1,0,0,1,0.5,0.5,0.5,1], 100,1)...
-    ];
 
-schedule = schedule_acq_ext;
+
 model_names = {'Rescorla-Wagner', 'Mackintosh', 'Pearce-Hall', 'Esber-Hasselgrove', 'Temporal Difference'};
 % Model : 1|RW    2|M    3|PH    4|EH    5|TD
-fig = figure(1);
-fig.Position = [-1699         390         845         462];
-clf(fig);
+
+
 for model = 1:5
-    app = CCC_exported(schedule,model);
+    app1 = CCC_exported(schedule_acq_half,model);
+    app2 = CCC_exported(schedule_half_alternating,model);
+    app.V = app1.V;
+    app.V(:,2) = app2.V(:,1);
+    app.alpha = app1.alpha;
+    app.alpha(:,2) = app2.alpha(:,1);
+    fig = figure();
+    fig.Position = [-1699         390         845         462];
+    clf(fig);
+    %ax = subplot(2,3,model,'Parent',fig1);
     hold on;
     v_plot_1 = plot(app.V(:,1),'Color',CC.CS1,'LineWidth',2);
     v_plot_2 = plot(app.V(:,2),'Color',CC.CS2,'LineWidth',2);
@@ -48,7 +52,7 @@ for model = 1:5
     title(model_names{model});
     xlabel('Trial');
     ylabel('V');
-    xlim([0,120]);
+    xlim([0,200]);
     ylim([0,1]);
     if model == 5
         ylabel('w');
