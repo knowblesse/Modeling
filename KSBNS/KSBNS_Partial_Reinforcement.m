@@ -3,6 +3,9 @@
 % 2021 Knowblesse
 % 21MAY11
 
+addpath('..');
+addpath('../helper_function');
+
 %% Color Constant
 CC.CS1 = [113,204,255]/255;
 CC.CS2 = [130,196,124]/255;
@@ -46,7 +49,6 @@ for model = 1:5
         a_plot_1.Visible = false;
         a_plot_2.Visible = false;
     end 
-    %saveas(fig1,strcat(model_names{model},'_Blocking'),'png');
 end   
     
     

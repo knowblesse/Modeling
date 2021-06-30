@@ -83,6 +83,7 @@ app.V_bar = zeros(size(schedule,1)+1,3);
 app.alpha = zeros(size(schedule,1)+1,3);
 app.numTrial = 1;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%CCC_exported Start %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Schedule
 % +------+------+------+------+----------+---------+---------+--------+
 % | Col1 | Col2 | Col3 | Col4 |   Col5   |  Col6   |  Col7   |  Col8  |
@@ -256,14 +257,29 @@ switch(selectedButton.Text)
     case('Temporal-Difference')
         app.TabGroup.SelectedTab = app.Tab_TD;
         %% Parameters
+        %{
+            Start of the CS is the beginning of the each trial.
+            So, You can't do the backward conditioning in this scheme.
+
+            Since Matlab uses 1 as the beginning of the index, 
+            CS.length is the last index (inclusive) of the CS presentation
+            US.start is the beginning index (inclusive) of US presentation
+            ITI is the extra timepoints after the presentation of CS or US
+
+            The parameter that the original thesis (Sutton & Barto, 1987) used c=0.01, 
+            but this does not fit with the simulated data. And also, similar model
+            (SBmodel by Sutton & Barto, 1981) uses c values a way over .01.
+            So I used c=0.1
+        %}
         CS.length = 4;
-        US.start = 9; % US must be presented after the CS
+        US.start = 9; 
         US.end = 10; 
         ITI = 100;
-        beta = 0.87;
+        beta = 0.8;
         c = 0.1; 
         gamma = 0.95;
-        
+
+
         %% Stretch the schedule to include time factor
         trial_length = max(CS.length,US.end) + ITI;
         newSchedule = zeros(trial_length * size(schedule,1),8);
@@ -274,7 +290,6 @@ switch(selectedButton.Text)
             newSchedule(trial_length*(s-1)+1 : trial_length*s,:) = temp;
         end
         clearvars temp
-        
         
         %% Initialize
         totalTime = size(newSchedule,1);
@@ -308,6 +323,8 @@ switch(selectedButton.Text)
                 trial = trial + 1;
             end
         end
+        t = trial;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%CCC_exported End %%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 end       
 

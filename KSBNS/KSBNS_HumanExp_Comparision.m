@@ -4,6 +4,9 @@
 % 2021 Knowblesse
 % 21MAY11
 
+addpath('..');
+addpath('../helper_function');
+
 %% Color Constant
 CC.exp1_cert = [113,204,255]/255;
 CC.exp1_unct = [50,84,157]/255;
@@ -76,11 +79,5 @@ for model = 1:5
     ylabel('V');
     xlim([0,150]);
     ylim([0,0.7]);
-    if model == 5
-        ylabel('w');
-        a_plot_1.Visible = false;
-        a_plot_2.Visible = false;
-    end 
     legend([v_plot_1{1}, v_plot_2{1}, v_plot_3{1}, v_plot_4{1}],{'exp1 uncertain','exp1 certain','exp2 uncertain','exp2 certain'});
-    saveas(fig,strcat(model_names{model},'_human'),'png');
 end   
