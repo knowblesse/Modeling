@@ -1,4 +1,4 @@
-function app = CCC_exported(schedule, mode)
+function app = CCC_exported(schedule, mode, initial_alpha)
 %% Classical Conditioning Closet Core
 % Description :
 %       The Core script of the Classical Conditioning Closet App for testing purpose 
@@ -11,6 +11,11 @@ function app = CCC_exported(schedule, mode)
 
 %% Parameters
 app = struct();
+
+app.alpha_A.Value = initial_alpha(1);
+app.alpha_B.Value = initial_alpha(2);
+app.alpha_C.Value = initial_alpha(3);
+
 % Rescorla-Wager Model
 app.paramRW_lr_acq.Value = 0.1;%
 app.paramRW_lr_ext.Value = 0.05;%
@@ -19,7 +24,7 @@ app.paramRW_lr_ext.Value = 0.05;%
 app.paramM_lr_acq.Value = 0.1;
 app.paramM_lr_ext.Value = 0.05;
 app.paramM_k.Value = 0.01;
-app.paramM_e.Value = 0.02;
+app.paramM_epsilon.Value = 0.02;
 
 % Pearce-Hall Model
 app.paramPH_SA.Value = 0.02;
@@ -42,6 +47,13 @@ app.paramSPH_SC.Value = 0.3;
 app.paramSPH_beta_ex.Value = 0.1;
 app.paramSPH_beta_in.Value = 0.05;
 app.paramSPH_gamma.Value = 0.1;
+
+% TD Model
+app.paramTD_table.Data = table(1,4,1,4,1,4,9,10,50);
+app.paramTD_c.Value = 0.1;
+app.paramTD_beta.Value = 0.8;
+app.paramTD_gamma.Value = 0.95;
+
 
 %% Experiement Variables
 app.V = zeros(1000,3);
@@ -73,6 +85,8 @@ switch(mode)
         app.ModelButtonGroup.SelectedObject.Text = 'Esber-Haselgrove';
     case(5)
         app.ModelButtonGroup.SelectedObject.Text = 'Temporal-Difference';
+    case(6)
+        app.ModelButtonGroup.SelectedObject.Text = 'Schmajuk-P-H';
 end
 
 
@@ -85,245 +99,240 @@ app.numTrial = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%CCC_exported Start %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Schedule
-% +------+------+------+------+----------+---------+---------+--------+
-% | Col1 | Col2 | Col3 | Col4 |   Col5   |  Col6   |  Col7   |  Col8  |
-% +------+------+------+------+----------+---------+---------+--------+
-% | CS A | CS B | CS C | US   | alpha A  | alpha B | alpha C | lambda |
-% +------+------+------+------+----------+---------+---------+--------+
+% +------+------+------+------+--------+
+% | Col1 | Col2 | Col3 | Col4 |  Col5  |
+% +------+------+------+------+--------+
+% | CS A | CS B | CS C |  US  | lambda |
+% +------+------+------+------+--------+
+if isempty(schedule)
+    msgbox('Empty Schedule');
+else
+    selectedButton = app.ModelButtonGroup.SelectedObject;
+    switch(selectedButton.Text)
+        case('Rescorla-Wagner')
+            app.TabGroup.SelectedTab = app.Tab_RW;
+            app.alpha(1,:) = [app.alpha_A.Value, app.alpha_B.Value, app.alpha_C.Value];
+            % Do Simulation
+            for t = 1 : size(schedule,1)
+                CS = schedule(t,1:3);
+                US = schedule(t,4);
 
-selectedButton = app.ModelButtonGroup.SelectedObject;
-switch(selectedButton.Text)
-    case('Rescorla-Wagner')
-        app.TabGroup.SelectedTab = app.Tab_RW;
-        app.alpha(1,:) = schedule(1,5:7);
-        % Do Simulation
-        for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
-            US = schedule(t,4);
+                Vtot = sum(app.V(t,:) .* CS);
 
-            Vtot = sum(app.V(t,:) .* CS);
+                Lambda = US .* schedule(t,5);
 
-            Lambda = US .* schedule(t,8);
+                if schedule(t,4) ~= 0 % US
+                    lr = app.paramRW_lr_acq.Value;
+                else
+                    lr = app.paramRW_lr_ext.Value;
+                end
 
-            if schedule(t,4) ~= 0 % US
-                lr = app.paramRW_lr_acq.Value;
-            else
-                lr = app.paramRW_lr_ext.Value;
+                deltaV = app.alpha(t,:) .* CS .* (lr .* (Lambda - Vtot));
+
+                app.V(t + 1,:) = app.V(t,:) + deltaV;
+                app.alpha(t + 1, :) = app.alpha(t,:);
+            end
+        case('Mackintosh')
+            app.TabGroup.SelectedTab = app.Tab_M;
+            % Do Simulation
+            app.alpha(1,:) = [app.alpha_A.Value, app.alpha_B.Value, app.alpha_C.Value];
+            for t = 1 : size(schedule,1)
+                CS = schedule(t,1:3);
+                US = schedule(t,4);
+
+                Vtot = sum(app.V(t,:) .* CS);
+
+                Lambda = US .* schedule(t,5);
+
+                if schedule(t,4) ~= 0 % US
+                    lr = app.paramM_lr_acq.Value;
+                else
+                    lr = app.paramM_lr_ext.Value;
+                end
+
+                deltaV = app.alpha(t,:) .* CS .* lr .* (Lambda - app.V(t,:)); % not Vtot
+
+                % alpha change
+                deltaAlpha = [0, 0, 0];
+                for s = 1 : 3
+                    D_x = abs(Lambda - (Vtot - app.V(t,s)));
+                    D_s = abs(Lambda - app.V(t,s));
+                    if D_s < D_x
+                        deltaAlpha(s) = CS(s) * app.paramM_k.Value * (1-app.alpha(t,s)) * (D_x - D_s) / 2;
+                    elseif D_s == D_x
+                        deltaAlpha(s) = -1 * CS(s) * app.paramM_k.Value * app.paramM_epsilon.Value;
+                    else
+                        deltaAlpha(s) = CS(s) * app.paramM_k.Value * app.alpha(t,s) * (D_x - D_s) / 2;
+                    end
+                end
+
+                app.V(t + 1,:) = app.V(t,:) + deltaV;
+                app.alpha(t + 1, :) = app.alpha(t,:) + deltaAlpha;
+            end
+        case('Pearce-Hall')
+            app.TabGroup.SelectedTab = app.Tab_PH;
+            % Do Simulation
+            app.alpha(1,:) = [app.alpha_A.Value, app.alpha_B.Value, app.alpha_C.Value];
+            for t = 1 : size(schedule,1)
+                CS = schedule(t,1:3);
+                US = schedule(t,4);
+                S = [app.paramPH_SA.Value, app.paramPH_SB.Value, app.paramPH_SC.Value];
+
+                V_pos_tot = sum(app.V_pos(t,:) .* CS);
+                V_bar_tot = sum(app.V_bar(t,:) .* CS);
+
+                Lambda = US .* schedule(t,5);
+                Lambda_bar = (V_pos_tot - V_bar_tot) - Lambda;
+
+                deltaV_pos = CS .* S .* app.alpha(t,:) .* Lambda;
+                deltaV_bar = CS .* S .* app.alpha(t,:) .* Lambda_bar;
+
+                % alpha change
+                newAlpha = repmat(abs(Lambda - (V_pos_tot - V_bar_tot)),1,3);
+
+                app.V(t,:) = app.V_pos(t,:) - app.V_bar(t,:);
+                app.V_pos(t+1,:) = app.V_pos(t,:) + deltaV_pos;
+                app.V_bar(t+1,:) = app.V_bar(t,:) + deltaV_bar;
+                app.alpha(t+1,:) = newAlpha;
+            end
+        case('Esber-Haselgrove')
+            app.TabGroup.SelectedTab = app.Tab_EH;
+
+            % Do Simulation
+            app.alpha(1,:) = [app.alpha_A.Value, app.alpha_B.Value, app.alpha_C.Value];
+            phi = [app.alpha_A.Value, app.alpha_B.Value, app.alpha_C.Value];
+            V_pre = [0, 0, 0];
+            for t = 1 : size(schedule,1)
+                CS = schedule(t,1:3);
+                US = schedule(t,4);
+
+                V_pos_tot = sum(app.V_pos(t,:) .* CS);
+                V_bar_tot = sum(app.V_bar(t,:) .* CS);
+
+                Lambda = US .* schedule(t,5);
+
+                newAlpha = phi + (app.V_pos(t,:) + app.V_bar(t,:)) - app.paramEH_k.Value * V_pre;
+
+                if((Lambda - (V_pos_tot - V_bar_tot)) > 0)
+                    beta_pos = app.paramEH_lr1_acq.Value;
+                    beta_bar = app.paramEH_lr2_acq.Value;
+                else
+                    beta_pos = app.paramEH_lr1_ext.Value;
+                    beta_bar = app.paramEH_lr2_ext.Value;
+                end
+                deltaV_pos = CS .* newAlpha .* beta_pos .* (Lambda - (V_pos_tot - V_bar_tot));
+                deltaV_bar = CS .* newAlpha .* beta_bar .* ((V_pos_tot - V_bar_tot) - Lambda);
+
+                app.V(t,:) = app.V_pos(t,:) - app.V_bar(t,:);
+
+                if app.paramEH_limitV.Value
+                    app.V_pos(t+1,:) = min(max(app.V_pos(t,:) + deltaV_pos,[0,0,0]),[1,1,1]);
+                    app.V_bar(t+1,:) = min(max(app.V_bar(t,:) + deltaV_bar,[0,0,0]),[1,1,1]);
+                else
+                    app.V_pos(t+1,:) = app.V_pos(t,:) + deltaV_pos;
+                    app.V_bar(t+1,:) = app.V_bar(t,:) + deltaV_bar;
+                end
+                app.alpha(t,:) = newAlpha;
+                V_pre = V_pre + app.paramEH_lr_pre.Value * (CS - V_pre);
             end
 
-            deltaV = app.alpha(t,:) .* CS .* (lr .* (Lambda - Vtot));
+        case('Schmajuk-P-H')
+            app.TabGroup.SelectedTab = app.Tab_SPH;
 
-            app.V(t + 1,:) = app.V(t,:) + deltaV;
-            app.alpha(t + 1, :) = app.alpha(t,:);
-        end
-    case('Mackintosh')
-        app.TabGroup.SelectedTab = app.Tab_M;
-        % Do Simulation
-        app.alpha(1,:) = schedule(1,5:7);
-        for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
-            US = schedule(t,4);
+            % Do Simulation
+            app.alpha(1,:) = [app.alpha_A.Value, app.alpha_B.Value, app.alpha_C.Value];
+            S = [app.paramSPH_SA.Value, app.paramSPH_SB.Value, app.paramSPH_SC.Value];
+            for t = 1 : size(schedule,1)
+                CS = schedule(t,1:3);
+                US = schedule(t,4);
 
-            Vtot = sum(app.V(t,:) .* CS);
+                % In the original paper, V_dot is used as exert
+                % conditioned response and V_dot = V - N.
+                % In this program these variable is translated into
+                % below
+                % V_dot => V
+                % V => V_pos
+                % N => V_bar
+                V = app.V_pos(t,:) - app.V_bar(t,:);
+                Lambda = US .* schedule(t,5);
+                Lambda_bar = sum(CS .* V) - Lambda;
 
-            Lambda = US .* schedule(t,8);
+                % alpha change
+                if(t == 1) % if the first trial, use the initial value, not t-1
+                    newAlpha = app.paramSPH_gamma.Value * abs(Lambda) + (1-app.paramSPH_gamma.Value) * app.alpha(1,:);
+                else
+                    newAlpha = app.paramSPH_gamma.Value * abs(Lambda - sum(CS .* app.V(t-1,:))) + (1-app.paramSPH_gamma.Value) * app.alpha(t-1,:);
+                end
+                newAlpha = min(max(...
+                    newAlpha,[0,0,0]),[1,1,1]); % alpha value should be in range [0,1]. // Really??
+                app.alpha(t, :) = newAlpha;
 
-            if schedule(t,4) ~= 0 % US
-                lr = app.paramM_lr_acq.Value;
-            else
-                lr = app.paramM_lr_ext.Value;
-            end
+                % V change
+                deltaV_pos = [0, 0, 0];
+                deltaV_bar = [0, 0, 0];
 
-            deltaV = app.alpha(t,:) .* CS .* lr .* (Lambda - app.V(t,:)); % not Vtot
-
-            % alpha change
-            deltaAlpha = CS * app.paramM_k.Value .* (abs(Lambda - (Vtot - app.V(t,:))) - abs(Lambda - app.V(t,:)-app.paramM_e.Value));
-            newAlpha = min(max(app.alpha(t,:) + deltaAlpha,[0,0,0]),[1,1,1]); % alpha value should be in range [0,1]
-
-            app.V(t + 1,:) = app.V(t,:) + deltaV;
-            app.alpha(t + 1, :) =newAlpha;
-        end
-    case('Pearce-Hall')
-        app.TabGroup.SelectedTab = app.Tab_PH;
-        % Do Simulation
-        app.alpha(1,:) = schedule(1,5:7);
-        for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
-            US = schedule(t,4);
-            S = [app.paramPH_SA.Value, app.paramPH_SB.Value, app.paramPH_SC.Value];
-
-            V_pos_tot = sum(app.V_pos(t,:) .* CS);
-            V_bar_tot = sum(app.V_bar(t,:) .* CS);
-
-            Lambda = US .* schedule(t,8);
-            Lambda_bar = (V_pos_tot - V_bar_tot) - Lambda;
-
-            deltaV_pos = CS .* S .* app.alpha(t,:) .* Lambda;
-            deltaV_bar = CS .* S .* app.alpha(t,:) .* Lambda_bar;
-
-            % alpha change
-            newAlpha = repmat(abs(Lambda - (V_pos_tot - V_bar_tot)),1,3);
-
-            app.V(t,:) = app.V_pos(t,:) - app.V_bar(t,:);
-            app.V_pos(t+1,:) = app.V_pos(t,:) + deltaV_pos;
-            app.V_bar(t+1,:) = app.V_bar(t,:) + deltaV_bar;
-            app.alpha(t+1,:) = newAlpha;
-        end
-    case('Esber-Haselgrove')
-        app.TabGroup.SelectedTab = app.Tab_EH;
-
-        % Do Simulation
-        app.alpha(1,:) = schedule(1,5:7);
-        phi = schedule(1,5:7);
-        V_pre = [0, 0, 0];
-        for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
-            US = schedule(t,4);
-
-            V_pos_tot = sum(app.V_pos(t,:) .* CS);
-            V_bar_tot = sum(app.V_bar(t,:) .* CS);
-
-            Lambda = US .* schedule(t,8);
-
-            newAlpha = phi + (app.V_pos(t,:) + app.V_bar(t,:))/2 - app.paramEH_k.Value * V_pre;
-
-            if((Lambda - (V_pos_tot - V_bar_tot)) > 0)
-                beta_pos = app.paramEH_lr1_acq.Value;
-                beta_bar = app.paramEH_lr2_acq.Value;
-            else
-                beta_pos = app.paramEH_lr1_ext.Value;
-                beta_bar = app.paramEH_lr2_ext.Value;
-            end
-            deltaV_pos = CS .* newAlpha .* beta_pos .* (Lambda - (V_pos_tot - V_bar_tot));
-            deltaV_bar = CS .* newAlpha .* beta_bar .* ((V_pos_tot - V_bar_tot) - Lambda);
-
-            app.V(t,:) = app.V_pos(t,:) - app.V_bar(t,:);
-
-            if app.paramEH_limitV.Value
-                app.V_pos(t+1,:) = min(max(app.V_pos(t,:) + deltaV_pos,[0,0,0]),[1,1,1]);
-                app.V_bar(t+1,:) = min(max(app.V_bar(t,:) + deltaV_bar,[0,0,0]),[1,1,1]);
-            else
+                if Lambda - sum(CS .* V) > 0
+                    deltaV_pos = CS .* S .* app.alpha(t,:) .* app.paramSPH_beta_ex.Value .* Lambda;
+                else
+                    deltaV_bar = CS .* S .* app.alpha(t,:) .* app.paramSPH_beta_in.Value .* Lambda_bar;
+                end
+                app.V(t,:) = V;
                 app.V_pos(t+1,:) = app.V_pos(t,:) + deltaV_pos;
                 app.V_bar(t+1,:) = app.V_bar(t,:) + deltaV_bar;
             end
-            app.alpha(t,:) = newAlpha;
-            V_pre = V_pre + app.paramEH_lr_pre.Value .* newAlpha .* (CS - sum(V_pre)) .* CS;
-        end
+        case('Temporal-Difference')
+            app.TabGroup.SelectedTab = app.Tab_TD;
+            %% Parameters
+            CS.length = table2array(app.paramTD_table.Data(1,2));
+            US.start = table2array(app.paramTD_table.Data(1,7)); % US must be presented after the CS
+            US.end = table2array(app.paramTD_table.Data(1,8)); 
+            ITI = table2array(app.paramTD_table.Data(1,9));
 
-    case('Schmajuk-P-H')
-        app.TabGroup.SelectedTab = app.Tab_SPH;
-
-        % Do Simulation
-        app.alpha(1,:) = schedule(1,5:7);
-        S = [app.paramSPH_SA.Value, app.paramSPH_SB.Value, app.paramSPH_SC.Value];
-        for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
-            US = schedule(t,4);
-
-            % In the original paper, V_dot is used as exert
-            % conditioned response and V_dot = V - N.
-            % In this program these variable is translated into
-            % below
-            % V_dot => V
-            % V => V_pos
-            % N => V_bar
-            V = app.V_pos(t,:) - app.V_bar(t,:);
-            Lambda = US .* schedule(t,8);
-            Lambda_bar = sum(CS .* V) - Lambda;
-
-            % alpha change
-            if(t == 1) % if the first trial, use the initial value, not t-1
-                newAlpha = app.paramSPH_gamma.Value * abs(Lambda) + (1-app.paramSPH_gamma.Value) * app.alpha(1,:);
-            else
-                newAlpha = app.paramSPH_gamma.Value * abs(Lambda - sum(CS .* app.V(t-1,:))) + (1-app.paramSPH_gamma.Value) * app.alpha(t-1,:);
+            %% Stretch the schedule to include time factor
+            trial_length = max(CS.length, US.end) + ITI;
+            newSchedule = zeros(trial_length * size(schedule, 1),5);
+            for s = 1 : size(schedule,1)
+                temp = zeros(trial_length, 5);
+                temp(1:CS.length, 1:3) = repmat(schedule(s, 1:3), CS.length, 1);
+                temp(US.start:US.end, 4:5) = repmat(schedule(s,4:5), US.end-US.start+1, 1);
+                newSchedule(trial_length*(s-1)+1 : trial_length*s,:) = temp;
             end
-            newAlpha = min(max(...
-                newAlpha,[0,0,0]),[1,1,1]); % alpha value should be in range [0,1]. // Really??
-            app.alpha(t, :) = newAlpha;
+            clearvars temp
 
-            % V change
-            deltaV_pos = [0, 0, 0];
-            deltaV_bar = [0, 0, 0];
+            %% Initialize
+            totalTime = size(newSchedule,1);
+            y = zeros(totalTime,1);
+            r = zeros(totalTime,1);
+            x_bar = zeros(totalTime,3);
+            x = zeros(totalTime,3);
+            w = zeros(totalTime,3);
 
-            if Lambda - sum(CS .* V) > 0
-                deltaV_pos = CS .* S .* app.alpha(t,:) .* app.paramSPH_beta_ex.Value .* Lambda;
-            else
-                deltaV_bar = CS .* S .* app.alpha(t,:) .* app.paramSPH_beta_in.Value .* Lambda_bar;
+            %% Do Simulation
+            trial = 1;
+            for t = 1 : size(newSchedule,1)
+                US_weight = newSchedule(t,5);
+                US_presence = newSchedule(t,4);
+                x(t,:) = newSchedule(t,1:3);
+                r(t) = US_weight * US_presence;
+                y(t) = r(t) + max(w(t,:) * x(t,:)',0);
+                if t == 1
+                    x_bar(t,:) = 0; %eligibility traces
+                    w(t+1,:) = w(t,:) + app.paramTD_c.Value*(r(t) + app.paramTD_gamma.Value*max(w(t,:) * x(t,:)',0) )*x_bar(t,:);
+                else
+                    x_bar(t,:) = app.paramTD_beta.Value .* x_bar(t-1,:) + (1-app.paramTD_beta.Value) .* x(t-1,:); %eligibility traces
+                    w(t+1,:) = w(t,:) + app.paramTD_c.Value.*(...
+                        r(t) + app.paramTD_gamma.Value .* max(w(t,:) * x(t,:)',0) - max(w(t,:) * x(t-1,:)',0)...
+                        )*x_bar(t,:); % during the CS presentaion, gamma value makes the delta w negative proportional to it's weight.
+                end
+
+                if rem(t, trial_length) == 0
+                    app.V(trial,:) = w(t,:); % save the last weight value from every trial as V
+                    trial = trial + 1;
+                end
             end
-            app.V(t,:) = V;
-            app.V_pos(t+1,:) = app.V_pos(t,:) + deltaV_pos;
-            app.V_bar(t+1,:) = app.V_bar(t,:) + deltaV_bar;
-        end
-    case('Temporal-Difference')
-        app.TabGroup.SelectedTab = app.Tab_TD;
-        %% Parameters
-        %{
-            Start of the CS is the beginning of the each trial.
-            So, You can't do the backward conditioning in this scheme.
-
-            Since Matlab uses 1 as the beginning of the index, 
-            CS.length is the last index (inclusive) of the CS presentation
-            US.start is the beginning index (inclusive) of US presentation
-            ITI is the extra timepoints after the presentation of CS or US
-
-            The parameter that the original thesis (Sutton & Barto, 1987) used c=0.01, 
-            but this does not fit with the simulated data. And also, similar model
-            (SBmodel by Sutton & Barto, 1981) uses c values a way over .01.
-            So I used c=0.1
-        %}
-        CS.length = 4;
-        US.start = 9; 
-        US.end = 10; 
-        ITI = 100;
-        beta = 0.8;
-        c = 0.1; 
-        gamma = 0.95;
-
-
-        %% Stretch the schedule to include time factor
-        trial_length = max(CS.length,US.end) + ITI;
-        newSchedule = zeros(trial_length * size(schedule,1),8);
-        for s = 1 : size(schedule,1)
-            temp = zeros(trial_length,8);
-            temp(1:CS.length,[1,2,3,5,6,7]) = repmat(schedule(s,[1,2,3,5,6,7]),CS.length,1);
-            temp(US.start:US.end,[4,8]) = repmat(schedule(s,[4,8]),US.end-US.start+1,1);
-            newSchedule(trial_length*(s-1)+1 : trial_length*s,:) = temp;
-        end
-        clearvars temp
-        
-        %% Initialize
-        totalTime = size(newSchedule,1);
-        y = zeros(totalTime,1);
-        r = zeros(totalTime,1);
-        x_bar = zeros(totalTime,3);
-        x = zeros(totalTime,3);
-        w = zeros(totalTime,3);
-        %w(1,:) = newSchedule(1,5:7);
-
-        %% Do Simulation
-        trial = 1;
-        for t = 1 : size(newSchedule,1)
-            US_weight = newSchedule(t,8);
-            US_presence = newSchedule(t,4);
-            x(t,:) = newSchedule(t,1:3);
-            r(t) = US_weight * US_presence;
-            y(t) = r(t) + max(w(t,:) * x(t,:)',0);
-            if t == 1
-                x_bar(t,:) = 0; %eligibility traces
-                w(t+1,:) = w(t,:) + c*(r(t) + gamma*max(w(t,:) * x(t,:)',0) )*x_bar(t,:);
-            else
-                x_bar(t,:) = beta .* x_bar(t-1,:) + (1-beta) .* x(t-1,:); %eligibility traces
-                w(t+1,:) = w(t,:) + c.*(...
-                    r(t) + gamma .* max(w(t,:) * x(t,:)',0) - max(w(t,:) * x(t-1,:)',0)...
-                    )*x_bar(t,:); % during the CS presentaion, gamma value makes the delta w negative proportional to it's weight.
-            end
-
-            if rem(t, trial_length) == 0
-                app.V(trial,:) = w(t,:); % save the last weight value from every trial as V
-                trial = trial + 1;
-            end
-        end
-        t = trial;
+            t = trial;
+    end
+    app.numTrial = t;
     %%%%%%%%%%%%%%%%%%%%%%%%%%CCC_exported End %%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 end       
