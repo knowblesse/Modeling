@@ -1,4 +1,4 @@
-function app = CCC_exported(schedule, mode, initial_alpha)
+function app = CCC_exported(schedule, mode, initial_alpha, app_custom)
 %% Classical Conditioning Closet Core
 % Description :
 %       The Core script of the Classical Conditioning Closet App for testing purpose 
@@ -23,7 +23,7 @@ app.paramRW_lr_ext.Value = 0.05;%
 % Mackintosh Model
 app.paramM_lr_acq.Value = 0.1;
 app.paramM_lr_ext.Value = 0.05;
-app.paramM_k.Value = 0.01;
+app.paramM_k.Value = 0.1;
 app.paramM_epsilon.Value = 0.02;
 
 % Pearce-Hall Model
@@ -54,6 +54,9 @@ app.paramTD_c.Value = 0.1;
 app.paramTD_beta.Value = 0.8;
 app.paramTD_gamma.Value = 0.95;
 
+if exist('app_custom','var')
+    app = app_custom;
+end
 
 %% Experiement Variables
 app.V = zeros(1000,3);
@@ -283,18 +286,18 @@ else
         case('Temporal-Difference')
             app.TabGroup.SelectedTab = app.Tab_TD;
             %% Parameters
-            CS.length = table2array(app.paramTD_table.Data(1,2));
-            US.start = table2array(app.paramTD_table.Data(1,7)); % US must be presented after the CS
-            US.end = table2array(app.paramTD_table.Data(1,8)); 
-            ITI = table2array(app.paramTD_table.Data(1,9));
+            % A Start | A End | B Start | B End | C Start | C End | US Start | US End | ITI
 
             %% Stretch the schedule to include time factor
-            trial_length = max(CS.length, US.end) + ITI;
+            trial_length = max(app.paramTD_table.Data{1,1:8}) + app.paramTD_table.Data{1,9};% max cs end + iti
             newSchedule = zeros(trial_length * size(schedule, 1),5);
             for s = 1 : size(schedule,1)
                 temp = zeros(trial_length, 5);
-                temp(1:CS.length, 1:3) = repmat(schedule(s, 1:3), CS.length, 1);
-                temp(US.start:US.end, 4:5) = repmat(schedule(s,4:5), US.end-US.start+1, 1);
+                temp(app.paramTD_table.Data{1,1} : app.paramTD_table.Data{1,2},1) = 1 * schedule(s,1);
+                temp(app.paramTD_table.Data{1,3} : app.paramTD_table.Data{1,4},2) = 1 * schedule(s,2);
+                temp(app.paramTD_table.Data{1,5} : app.paramTD_table.Data{1,6},3) = 1 * schedule(s,3);
+                temp(app.paramTD_table.Data{1,7} : app.paramTD_table.Data{1,8},4) = 1 * schedule(s,4);
+                temp(:,5) = schedule(s,5);
                 newSchedule(trial_length*(s-1)+1 : trial_length*s,:) = temp;
             end
             clearvars temp
