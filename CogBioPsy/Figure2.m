@@ -9,10 +9,8 @@ addpath('../helper_function');
 
 
 %% Color Constant
-CC.con_1 = ones(1,3) * 0.0;
-CC.con_2 = ones(1,3) * 0.0;
-CC.par_1 = ones(1,3) * 0.6;
-CC.par_2 = ones(1,3) * 0.6;
+CC.con = ones(1,3) * 0.0;
+CC.par = ones(1,3) * 0.6;
 
 %% Parameters
 app.alpha_A.Value = 0.5;
@@ -58,53 +56,33 @@ app.paramTD_beta.Value = 0.8;
 app.paramTD_gamma.Value = 0.95;
 
 %% Experiment Schedule from the (Haselgrove et al. 2004)
-
-lambda1 = 0.5;
-lambda2 = 1;
 acquisition = 100;
 extinction = 100;
 
-schedule_con_1 = [...
-    repmat([1,0,0,1,lambda1], acquisition,1);
-    repmat([1,0,0,0,lambda1], extinction,1)];
-schedule_con_2 = [...
-    repmat([1,0,0,1,lambda2], acquisition,1);
-    repmat([1,0,0,0,lambda2], extinction,1)];
-schedule_par_1 = [...
+schedule_con = [... % one pellet per reinforcement
+    repmat([1,0,0,1,0.5], 100, 1);
+    repmat([1,0,0,0,0.5], 100, 1)];
+schedule_par = [... % two pellets per reinforcement
     repmat([...
-        1,0,0,1,lambda1;...
-        1,0,0,1,lambda1;...
-        1,0,0,0,lambda1;...
-        1,0,0,0,lambda1], acquisition/4,1);
-    repmat([1,0,0,0,lambda1], extinction,1)];
-    
-schedule_par_2 = [...
-    repmat([...
-        1,0,0,1,lambda2;...
-        1,0,0,1,lambda2;...
-        1,0,0,0,lambda2;...
-        1,0,0,0,lambda2], acquisition/4,1);
-    repmat([1,0,0,0,lambda2], extinction,1)];
+        1,0,0,1,1.0;...
+        1,0,0,1,1.0;...
+        1,0,0,0,1.0;...
+        1,0,0,0,1.0], 25,1);
+    repmat([1,0,0,0,1.0], 100,1)];
     
 model_names = {'RW', 'Mac', 'PH', 'EH', 'TD', 'SPH'};
 
 %% Run
 for model = 1:6
-    app1 = CCC_exported(schedule_con_1,model,[0.5,0.5,0.5],app);
-    app2 = CCC_exported(schedule_con_2,model,[0.5,0.5,0.5],app);
-    app3 = CCC_exported(schedule_par_1,model,[0.5,0.5,0.5],app);
-    app4 = CCC_exported(schedule_par_2,model,[0.5,0.5,0.5],app);
+    app1 = CCC_exported(schedule_con,model,[0.5,0.5,0.5],app);
+    app2 = CCC_exported(schedule_par,model,[0.5,0.5,0.5],app);
     fig = figure(model);
     clf(fig);
     hold on;
-    v_plot_1 = plot(app1.V(:,1),'Color',CC.con_1,'LineStyle','--','LineWidth',2);
-    v_plot_2 = plot(app2.V(:,1),'Color',CC.con_2,'LineStyle','-','LineWidth',2);
-    v_plot_3 = plot(app3.V(:,1),'Color',CC.par_1,'LineStyle','--','LineWidth',2);
-    v_plot_4 = plot(app4.V(:,1),'Color',CC.par_2,'LineStyle','-','LineWidth',2);
-    % a_plot_1 = plot(app1.alpha(:,1),'Color',CC.con_1,'LineStyle','--','LineWidth',2);
-    % a_plot_2 = plot(app2.alpha(:,1),'Color',CC.con_2,'LineStyle','--','LineWidth',2);
-    % a_plot_3 = plot(app3.alpha(:,1),'Color',CC.par_1,'LineStyle','--','LineWidth',2);
-    % a_plot_4 = plot(app4.alpha(:,1),'Color',CC.par_2,'LineStyle','--','LineWidth',2);
+    v_plot_1 = plot(app1.V(:,1),'Color',CC.con,'LineStyle','-','LineWidth',2);
+    v_plot_2 = plot(app2.V(:,1),'Color',CC.par,'LineStyle','-','LineWidth',2);
+    % a_plot_1 = plot(app1.alpha(:,1),'Color',CC.con,'LineStyle','--','LineWidth',2);
+    % a_plot_2 = plot(app2.alpha(:,1),'Color',CC.par,'LineStyle','--','LineWidth',2);
     title(model_names{model});
     xlabel('Trial');
     ylabel('V');
@@ -116,9 +94,36 @@ for model = 1:6
         a_plot_2.Visible = false;
     end 
     
-    legend({'con_1','con_2','par_1','par_2'});
+    legend({'continuous','partial'});
     saveas(fig,strcat(model_names{model},'_animal'),'png');
 end   
     
-    
-    
+%% Animal Data Figure    
+load animal_data.mat
+
+fig_animal = figure(7);
+fig_animal.Position = [0,0,1056,379];
+clf(fig_animal);
+subplot(1,4,1:2);
+hold on;
+plot(1:12, animal_data(1:12, 1), 'Color', CC.con, 'LineWidth', 2);
+plot(1:12, animal_data(1:12, 2), 'Color', CC.par, 'LineWidth', 2);
+title('Acqusition');
+xlabel('Session');
+ylabel('Mean difference score (magazine activity)');
+xticks(1:12);
+xlim([0,13]);
+ylim([-1,8]);
+
+subplot(1,4,3:4);
+hold on;
+plot(1:9, animal_data(13:21,1), 'Color', CC.con, 'LineWidth', 2);
+plot(1:9, animal_data(13:21,2), 'Color', CC.par, 'LineWidth', 2);
+plot(10:18, animal_data(22:30,1), 'Color', CC.con, 'LineWidth', 2);
+plot(10:18, animal_data(22:30,2), 'Color', CC.par, 'LineWidth', 2);
+title('Extinction');
+xlabel('Trial (2 blocks)');
+xticks(1:18);
+xticklabels([1:9,1:9]);
+xlim([0,19]);
+ylim([-1,8]);
