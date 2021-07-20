@@ -127,3 +127,4 @@ xticks(1:18);
 xticklabels([1:9,1:9]);
 xlim([0,19]);
 ylim([-1,8]);
+legend({'continuous','partial'});
