@@ -17,8 +17,8 @@ app.alpha_B.Value = initial_alpha(2);
 app.alpha_C.Value = initial_alpha(3);
 
 % Rescorla-Wager Model
-app.paramRW_lr_acq.Value = 0.1;%
-app.paramRW_lr_ext.Value = 0.05;%
+app.paramRW_lr_acq.Value = 0.1;
+app.paramRW_lr_ext.Value = 0.05;
 
 % Mackintosh Model
 app.paramM_lr_acq.Value = 0.1;
@@ -41,12 +41,12 @@ app.paramEH_lr_pre.Value = 0.02;
 app.paramEH_limitV.Value = false;
 
 % Schmajuk-Pearson-Hall Model
-app.paramSPH_SA.Value = 0.3;
-app.paramSPH_SB.Value = 0.3;
-app.paramSPH_SC.Value = 0.3;
-app.paramSPH_beta_ex.Value = 0.1;
+app.paramSPH_SA.Value = 0.2;
+app.paramSPH_SB.Value = 0.2;
+app.paramSPH_SC.Value = 0.2;
+app.paramSPH_beta_ex.Value = 0.08;
 app.paramSPH_beta_in.Value = 0.05;
-app.paramSPH_gamma.Value = 0.1;
+app.paramSPH_gamma.Value = 0.03;
 
 % TD Model
 app.paramTD_table.Data = table(1,4,1,4,1,4,9,10,50);

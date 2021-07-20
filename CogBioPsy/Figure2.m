@@ -18,8 +18,8 @@ app.alpha_B.Value = 0.5;
 app.alpha_C.Value = 0.5;
 
 % Rescorla-Wager Model
-app.paramRW_lr_acq.Value = 0.1;%
-app.paramRW_lr_ext.Value = 0.05;%
+app.paramRW_lr_acq.Value = 0.1;
+app.paramRW_lr_ext.Value = 0.05;
 
 % Mackintosh Model
 app.paramM_lr_acq.Value = 0.1;
@@ -33,10 +33,11 @@ app.paramPH_SB.Value = 0.02;
 app.paramPH_SC.Value = 0.02;
 
 % Esber Haselgrove Model
+%lr2_acq value changed from original one
 app.paramEH_lr1_acq.Value = 0.07; % lr1 : when delta V >= 0 
-app.paramEH_lr2_acq.Value = 0.02; % Phi(2 acq lr) must be larger than Phi(2 ext lr)
+app.paramEH_lr2_acq.Value = 0.03; % Phi(2 acq lr) must be larger than Phi(2 ext lr)
 app.paramEH_lr1_ext.Value = 0.05;
-app.paramEH_lr2_ext.Value = 0.03;
+app.paramEH_lr2_ext.Value = 0.01;
 app.paramEH_k.Value = 0.2;
 app.paramEH_lr_pre.Value = 0.02;
 app.paramEH_limitV.Value = false;
@@ -88,11 +89,6 @@ for model = 1:6
     ylabel('V');
     xlim([0,acquisition + extinction]);
     ylim([0,1]);
-    if model == 5
-        ylabel('w');
-        a_plot_1.Visible = false;
-        a_plot_2.Visible = false;
-    end 
     
     legend({'continuous','partial'});
     saveas(fig,strcat(model_names{model},'_animal'),'png');
