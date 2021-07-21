@@ -35,6 +35,9 @@ Learning Algorithm Modeling Project
 	- **shuffle1D.m** : Shuffle the given array
 
 # Change Log
+### v1.2 :
+- [Fixed] Pearce-Hall model error fixed (I'm keep writing it as "Pearson-Hall")
+- [Changed] Default model parameter changed
 
 ### v1.1 : 
 - [Fixed] weight is now initialized everytime the simulation is performed.

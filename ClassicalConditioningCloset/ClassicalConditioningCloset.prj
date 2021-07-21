@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="2031933694" file="C:\VCF\Modeling\ClassicalConditioningCloset\ClassicalConditioningCloset.prj" location="C:\VCF\Modeling\ClassicalConditioningCloset" name="ClassicalConditioningCloset" target="target.mlapps" target-name="앱 패키징">
+  <configuration build-checksum="2034783693" file="C:\VCF\Modeling\ClassicalConditioningCloset\ClassicalConditioningCloset.prj" location="C:\VCF\Modeling\ClassicalConditioningCloset" name="ClassicalConditioningCloset" target="target.mlapps" target-name="앱 패키징">
     <param.appname>ClassicalConditioningCloset</param.appname>
     <param.authnamewatermark>Ji Hoon Jeong</param.authnamewatermark>
     <param.email>knowblesse@gmail.com</param.email>
@@ -8,8 +8,8 @@
     <param.icons />
     <param.summary>Simulator for Rescorla Wager learning model</param.summary>
     <param.description />
-    <param.screenshot>C:\Users\Knowblesse\AppData\Local\Temp\tp40d1b993_c62b_4422_a3ac_f503d8e6bba8.png</param.screenshot>
-    <param.version>1.0</param.version>
+    <param.screenshot>C:\Users\Knowblesse\AppData\Local\Temp\tp28ecbbdd_338b_409f_94ba_bf942b33f4a0.png</param.screenshot>
+    <param.version>1.2</param.version>
     <param.products.name />
     <param.products.id />
     <param.products.version />
@@ -21,7 +21,6 @@
       <param.icon />
       <param.icons />
       <param.description />
-      <param.version />
       <param.products.name />
       <param.products.id />
       <param.products.version />
