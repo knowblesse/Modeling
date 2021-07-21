@@ -31,7 +31,7 @@ app.paramPH_SA.Value = 0.04;
 app.paramPH_SB.Value = 0.04;
 app.paramPH_SC.Value = 0.04;
 
-% Esber Haselgrove Model : this should be corrected
+% Esber Haselgrove Model
 app.paramEH_lr1_acq.Value = 0.05; % lr1 : when delta V >= 0 
 app.paramEH_lr2_acq.Value = 0.03; % product of two acq lr > product of two ext lr
 app.paramEH_lr1_ext.Value = 0.04;
@@ -268,7 +268,13 @@ else
                 end
                 newAlpha = min(max(...
                     newAlpha,[0,0,0]),[1,1,1]); % alpha value should be in range [0,1]. // Really??
-                app.alpha(t, :) = newAlpha;
+                for s = 1 : 3
+                    if CS(s)
+                        app.alpha(t,s) = newAlpha(s);
+                    else
+                        app.alpha(t,s) = oldAlpha(s);
+                    end
+                end
 
                 % V change
                 deltaV_pos = [0, 0, 0];

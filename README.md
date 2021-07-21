@@ -8,6 +8,9 @@ Learning Algorithm Modeling Project
 
 [Go to Release Page](https://github.com/knowblesse/Modeling/releases/tag/v1.0)
 
+# Manual
+[Download the Manual](https://github.com/knowblesse/Modeling/blob/main/ClassicalConditioningCloset/CCC_Doc.pdf)
+
 # Folders
 
 ## root
@@ -35,6 +38,11 @@ Learning Algorithm Modeling Project
 	- **shuffle1D.m** : Shuffle the given array
 
 # Change Log
+### v1.2.1 :
+- [Changed] SPH model doesn't update alpha if the corresponding CS is not presented.
+    - The original thesis does not clearly specify this in the equation.
+    - However, if this rule is not applied to the alpha updating rule, all alpha values remain the same across CSs. 
+
 ### v1.2 :
 - [Fixed] Pearce-Hall model error fixed (I'm keep writing it as "Pearson-Hall")
 - [Changed] Default model parameter changed
