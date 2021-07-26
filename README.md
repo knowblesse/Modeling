@@ -6,7 +6,7 @@ Learning Algorithm Modeling Project
 
 # Download Classical Conditioning Closet
 
-[Go to Release Page](https://github.com/knowblesse/Modeling/releases/tag/v1.0)
+[Go to Release Page](https://github.com/knowblesse/Modeling/releases/tag/v1.2.1)
 
 # Manual
 [Download the Manual](https://github.com/knowblesse/Modeling/blob/main/ClassicalConditioningCloset/CCC_Doc.pdf)
