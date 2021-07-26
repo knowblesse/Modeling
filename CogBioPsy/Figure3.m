@@ -8,25 +8,16 @@ addpath('..');
 addpath('../helper_function');
 
 %% Color Constant
-CC.exp1_cert = ones(1,3) * 0.0;
-CC.exp1_unct = ones(1,3) * 0.0;
-CC.exp2_cert = ones(1,3) * 0.6;
-CC.exp2_unct = ones(1,3) * 0.6;
+CC.cert = ones(1,3) * 0.0;
+CC.unct = ones(1,3) * 0.6;
 
 %% Parameters
-app.alpha_A.Value = 0.5;
-app.alpha_B.Value = 0.5;
-app.alpha_C.Value = 0.5;
-
-% Rescorla-Wager Model
-app.paramRW_lr_acq.Value = 0.1;%
-app.paramRW_lr_ext.Value = 0.05;%
+app = getDefaultParameters();
 
 % Mackintosh Model
 app.paramM_lr_acq.Value = 0.1;
-app.paramM_lr_ext.Value = 0.05;
-app.paramM_k.Value = 0.1;
-app.paramM_epsilon.Value = 0.02;
+app.paramM_lr_ext.Value = 0.1;
+app.paramM_k.Value = 0.2;
 
 % Pearce-Hall Model
 app.paramPH_SA.Value = 0.02;
@@ -34,21 +25,14 @@ app.paramPH_SB.Value = 0.02;
 app.paramPH_SC.Value = 0.02;
 
 % Esber Haselgrove Model
-app.paramEH_lr1_acq.Value = 0.07; % lr1 : when delta V >= 0 
-app.paramEH_lr2_acq.Value = 0.02; % Phi(2 acq lr) must be larger than Phi(2 ext lr)
-app.paramEH_lr1_ext.Value = 0.03;
-app.paramEH_lr2_ext.Value = 0.015;
-app.paramEH_k.Value = 0.2;
-app.paramEH_lr_pre.Value = 0.02;
-app.paramEH_limitV.Value = false;
+app.paramEH_lr1_acq.Value = 0.06;
+app.paramEH_lr1_ext.Value = 0.01;
 
 % Schmajuk-Pearson-Hall Model
-app.paramSPH_SA.Value = 0.3;
-app.paramSPH_SB.Value = 0.3;
-app.paramSPH_SC.Value = 0.3;
-app.paramSPH_beta_ex.Value = 0.01;
-app.paramSPH_beta_in.Value = 0.005;
-app.paramSPH_gamma.Value = 0.01;
+app.paramSPH_SA.Value = 0.4;
+app.paramSPH_SB.Value = 0.4;
+app.paramSPH_SC.Value = 0.4;
+app.paramSPH_beta_in.Value = 0.03;
 
 %% Experiment Schedule from the (Choi & Choi, 2021)
 
@@ -77,7 +61,7 @@ model_names = {'RW', 'Mac', 'PH', 'EH', 'TD', 'SPH'};
 num_repeat = 100;
 
 %% Run
-for model = [4]
+for model = [1,2,3,4,6]
     V = cell(1,4);
     alpha = cell(1,4);
     for r = 1 : num_repeat
@@ -102,18 +86,64 @@ for model = [4]
         alpha{3}(:,r) = app3.alpha(:,1);
         alpha{4}(:,r) = app4.alpha(:,1);
     end
-    fig = figure(model);
+    fig = figure(2*model-1);
     clf(fig);
     hold on;
-    [~,v_plot_1] = plot_shade(fig.Children, mean(V{1},2), std(V{1},0,2),'Color',CC.exp1_unct,'LineWidth',2,'Shade',true, 'LineStyle', '--');
-    [~,v_plot_2] = plot_shade(fig.Children, mean(V{2},2), std(V{2},0,2),'Color',CC.exp1_cert,'LineWidth',2,'Shade',true);
-    [~,v_plot_3] = plot_shade(fig.Children, mean(V{3},2), std(V{3},0,2),'Color',CC.exp2_unct,'LineWidth',2,'Shade',true, 'LineStyle', '--');
-    [~,v_plot_4] = plot_shade(fig.Children, mean(V{4},2), std(V{4},0,2),'Color',CC.exp2_cert,'LineWidth',2,'Shade',true);
-    title(model_names{model});
+    [~,v_plot_1] = plot_shade(fig.Children, mean(V{1},2), std(V{1},0,2),'Color',CC.unct,'LineWidth',2,'Shade',true);
+    [~,v_plot_2] = plot_shade(fig.Children, mean(V{2},2), std(V{2},0,2),'Color',CC.cert,'LineWidth',2,'Shade',true);
+    title(strcat(model_names{model}, ' : Exp1'));
     xticks(0:50:200);
-    xlabel('trials');
+    xlabel('trial');
     ylabel('V');
     xlim([0,200]);
     ylim([0,0.7]);
-    legend([v_plot_1{1}, v_plot_2{1}, v_plot_3{1}, v_plot_4{1}],{'exp1 uncertain','exp1 certain','exp2 uncertain','exp2 certain'});
+    legend([v_plot_1{1}, v_plot_2{1}], {'exp1 uncertain','exp1 certain'});
+    
+    fig = figure(2*model);
+    clf(fig);
+    hold on;
+    [~,v_plot_3] = plot_shade(fig.Children, mean(V{3},2), std(V{3},0,2),'Color',CC.unct,'LineWidth',2,'Shade',true);
+    [~,v_plot_4] = plot_shade(fig.Children, mean(V{4},2), std(V{4},0,2),'Color',CC.cert,'LineWidth',2,'Shade',true);
+    title(strcat(model_names{model}, ' : Exp2'));
+    xticks(0:50:200);
+    xlabel('trial');
+    ylabel('V');
+    xlim([0,200]);
+    ylim([0,0.7]);
+    legend([v_plot_3{1}, v_plot_4{1}], {'exp2 uncertain','exp2 certain'});
 end   
+
+%% Human Data Plot
+exp1_block1 = [641, 603, 606];
+exp1_block2 = [605, 613, 595];
+exp2_block1 = [621, 604, 589];
+exp2_block2 = [581, 598,581];
+
+%% Final Figure
+fig_exp1 = figure(13);
+clf(fig_exp1);
+fig_exp1.Position = [100,100, 560, 420];
+b = bar([exp1_block1;exp1_block2],'EdgeColor','k', 'LineWidth', 2);
+b(1).FaceColor = [0.6, 0.6, 0.6];
+b(2).FaceColor = [0.0, 0.0, 0.0];
+b(3).FaceColor = [1.0, 1.0, 1.0];
+ylim([560, 660]);
+xticklabels({'Block 1', 'Block 2'});
+ylabel('RT(ms)');
+yticks(560:20:660);
+title('Experiment 1');
+legend({'Uncertain distractor', 'Certain distractor', 'No distractor'});
+
+fig_exp2 = figure(14);
+clf(fig_exp2);
+fig_exp2.Position = [100,100, 560, 420];
+b = bar([exp2_block1;exp2_block2],'EdgeColor','k', 'LineWidth', 2);
+b(1).FaceColor = [0.6, 0.6, 0.6];
+b(2).FaceColor = [0.0, 0.0, 0.0];
+b(3).FaceColor = [1.0, 1.0, 1.0];
+ylim([560, 660]);
+xticklabels({'Block 1', 'Block 2'});
+ylabel('RT(ms)');
+yticks(560:20:660);
+title('Experiment 2');
+legend({'Uncertain distractor', 'Certain distractor', 'No distractor'});

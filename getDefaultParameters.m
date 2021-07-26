@@ -1,5 +1,6 @@
-%% CCC parameters
-% small script for model parameter tracking
+function app = getDefaultParameters()
+%% getDefaultParameters
+% small script for default model parameters
 % @Knowblesse 2021 21JUL21
 
 app = struct();
@@ -46,3 +47,4 @@ app.paramTD_table.Data = table(1,4,1,4,1,4,9,10,50);
 app.paramTD_beta.Value = 0.875;
 app.paramTD_c.Value = 0.08;
 app.paramTD_gamma.Value = 0.95;
+end
