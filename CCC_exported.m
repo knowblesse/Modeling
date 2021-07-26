@@ -263,8 +263,10 @@ else
                 % alpha change
                 if(t == 1) % if the first trial, use the initial value, not t-1
                     newAlpha = app.paramSPH_gamma.Value * abs(Lambda) + (1-app.paramSPH_gamma.Value) * app.alpha(1,:);
+                    oldAlpha = app.alpha(1,:);
                 else
                     newAlpha = app.paramSPH_gamma.Value * abs(Lambda - sum(CS .* app.V(t-1,:))) + (1-app.paramSPH_gamma.Value) * app.alpha(t-1,:);
+                    oldAlpha = app.alpha(t-1,:);
                 end
                 newAlpha = min(max(...
                     newAlpha,[0,0,0]),[1,1,1]); % alpha value should be in range [0,1]. // Really??
