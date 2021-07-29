@@ -4,25 +4,25 @@ Learning Algorithm Modeling Project
 
 2021 Knowblesse
 
-# Download Classical Conditioning Closet
+# Download Korea University Conditionging Simulator (KUCS)
 
-[Go to Release Page](https://github.com/knowblesse/Modeling/releases/tag/v1.2.1)
+[Go to Release Page](https://github.com/knowblesse/Modeling/releases/tag/v1.3)
 
 # Manual
-[Download the Manual](https://github.com/knowblesse/Modeling/blob/main/ClassicalConditioningCloset/CCC_Doc.pdf)
+[Download the Manual](https://github.com/knowblesse/Modeling/blob/main/KUCS/KUCS/KUCS_Doc.pdf)
 
 # Folders
 
 ## root
 
-- **CCC_exported.m** : core simulation code extracted from the CCC. 
+- **CCC_exported.m** : core simulation code extracted from the KUCS. 
 
 - **TD_model.m** : Temporal Difference model simulation code
 
 ## KSBNS
 - Scripts used for the KSBNS 2021 poster figures
 
-## ClassicalConditioningCloset
+## Korea University Conditioning Simulator
 - Matlab(c) application for Model simulation
 
 ## helper_function
@@ -38,6 +38,13 @@ Learning Algorithm Modeling Project
 	- **shuffle1D.m** : Shuffle the given array
 
 # Change Log
+### v1.3 :
+- [Changed] **Project renamed : Korea University Conditioning Simulator**
+- [Changed] model notation is improved. (does not effect the script)
+    - Program's equation image is updated
+- [Changed] Graph drawing speed is significantly increased in some devices (drawing time reduced 80%)
+    - I don't know why, but legend function was consuming a lot of time. (preallocation problem?)
+
 ### v1.2.1 :
 - [Changed] SPH model doesn't update alpha if the corresponding CS is not presented.
     - The original thesis does not clearly specify this in the equation.
