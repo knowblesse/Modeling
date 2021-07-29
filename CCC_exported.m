@@ -5,9 +5,6 @@ function app = CCC_exported(schedule, mode, initial_alpha, app_custom)
 % Author : 
 %       2021 Knowblesse
 % 
-%% TODO LIST
-% TD Model parameters
-% PH add new paramters
 
 %% Parameters
 app = struct();
