@@ -91,6 +91,22 @@ xticks(0:50:200);
 legend({'V_{CSA}', 'V_{CSB}', '\alpha_{CSA}', '\alpha_{CSB}'},'Location','northwest');
 title('PH','FontSize', 16);
 
+% inset figure
+fig_inset = figure();
+fig_inset.Position = [1165, 169, 258, 263];
+clf;
+
+hold on;
+plot(-1:3, app2_PH.V(99:103,1), 'Color', ones(1,3) * 0.0, 'LineStyle', '-', 'LineWidth', 2);
+plot(1:3, app2_PH_ctrl.V(1:3,1), 'Color', ones(1,3) * 0.6, 'LineStyle', '-', 'LineWidth', 2);
+plot(-1:3, app2_PH.alpha(99:103,1), 'Color', ones(1,3) * 0.0, 'LineStyle', '--', 'LineWidth', 2); 
+plot(1:3, app2_PH_ctrl.alpha(1:3,1), 'Color', ones(1,3) * 0.6, 'LineStyle', '--', 'LineWidth', 2); 
+line([1,1],[0,1],'Color', ones(1,3) * 0.8, 'LineStyle', ':', 'LineWidth',2);
+xticks(1);
+xticklabels(101);
+yticks([0,1]);
+xlim([-1, 3]);
+
 %% Second-order Condition
 % A Start | A End | B Start | B End | C Start | C End | US Start | US End | ITI
 app.paramTD_table.Data = table(...
