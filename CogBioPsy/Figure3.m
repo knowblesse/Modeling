@@ -115,9 +115,13 @@ end
 
 %% Human Data Plot
 exp1_block1 = [641, 603, 606];
+exp1_block1_err = [7.164, 5.970, 3.880];
 exp1_block2 = [605, 613, 595];
+exp1_block2_err = [5.970, 5.397, 4.762];
 exp2_block1 = [621, 604, 589];
+exp2_block1_err = [6.4, 5.8, 5];
 exp2_block2 = [581, 598,581];
+exp2_block2_err = [5.8, 8, 5.2];
 
 %% Final Figure
 fig_exp1 = figure(13);
@@ -127,6 +131,9 @@ b = bar([exp1_block1;exp1_block2],'EdgeColor','k', 'LineWidth', 2);
 b(1).FaceColor = [0.6, 0.6, 0.6];
 b(2).FaceColor = [0.0, 0.0, 0.0];
 b(3).FaceColor = [1.0, 1.0, 1.0];
+hold on;
+errorbar([0.7778, 1, 1.2222], exp1_block1, exp1_block1_err, 'LineStyle', 'none', 'LineWidth', 1, 'Color', [0.4, 0.4, 0.4]);
+errorbar([1.7778, 2, 2.2222], exp1_block2, exp1_block2_err, 'LineStyle', 'none', 'LineWidth', 1, 'Color', [0.4, 0.4, 0.4]);
 ylim([560, 660]);
 xticklabels({'Block 1', 'Block 2'});
 ylabel('RT(ms)');
@@ -141,6 +148,9 @@ b = bar([exp2_block1;exp2_block2],'EdgeColor','k', 'LineWidth', 2);
 b(1).FaceColor = [0.6, 0.6, 0.6];
 b(2).FaceColor = [0.0, 0.0, 0.0];
 b(3).FaceColor = [1.0, 1.0, 1.0];
+hold on;
+errorbar([0.7778, 1, 1.2222], exp2_block1, exp2_block1_err, 'LineStyle', 'none', 'LineWidth', 1, 'Color', [0.4, 0.4, 0.4]);
+errorbar([1.7778, 2, 2.2222], exp2_block2, exp2_block2_err, 'LineStyle', 'none', 'LineWidth', 1, 'Color', [0.4, 0.4, 0.4]);
 ylim([560, 660]);
 xticklabels({'Block 1', 'Block 2'});
 ylabel('RT(ms)');
