@@ -51,6 +51,16 @@ app.paramTD_beta.Value = 0.875;
 app.paramTD_c.Value = 0.08;
 app.paramTD_gamma.Value = 0.95;
 
+% Jeong Model
+app.paramJ_SA.Value = 1;
+app.paramJ_SB.Value = 1;
+app.paramJ_SC.Value = 1;
+app.paramJ_beta_ex.Value = 0.1;
+app.paramJ_beta_in.Value = 0.09;
+app.paramJ_gamma.Value = 0.5; % Effect of J to alpha
+app.paramJ_baseline.Value = 0.2; % Minimum alpha
+app.paramJ_minimum_p.Value = 0.01; % minimum prob of event
+
 if exist('app_custom','var')
     app = app_custom;
 end
@@ -69,6 +79,7 @@ app.Tab_PH = [];
 app.Tab_EH = [];
 app.Tab_SPH = [];
 app.Tab_TD = [];
+app.Tab_J = [];
 app.ModelButtonGroup = struct();
 
 
@@ -87,6 +98,8 @@ switch(mode)
         app.ModelButtonGroup.SelectedObject.Text = 'Temporal-Difference';
     case(6)
         app.ModelButtonGroup.SelectedObject.Text = 'Schmajuk-P-H';
+    case(7)
+        app.ModelButtonGroup.SelectedObject.Text = 'Jeong';
 end
 
 
@@ -339,6 +352,51 @@ else
                 end
             end
             t = trial;
+        case('Jeong')
+            app.TabGroup.SelectedTab = app.Tab_J;
+
+            % Do Simulation
+            app.alpha(1,:) = [0,0,0];%[app.alpha_A.Value, app.alpha_B.Value, app.alpha_C.Value];
+            S = [app.paramJ_SA.Value, app.paramJ_SB.Value, app.paramJ_SC.Value];
+            J = zeros(size(schedule,1),3);
+            for t = 1 : size(schedule,1)
+                CS = schedule(t,1:3);
+                US = schedule(t,4);
+
+                V_dot = app.V_pos(t,:) - app.V_bar(t,:);
+                Lambda = US .* schedule(t,5);
+                Lambda_bar = sum(CS .* V_dot) - Lambda;
+
+                p = max(1 - abs(min(max(CS .* V_dot,0),1) - Lambda), app.paramJ_minimum_p.Value);
+            
+                J(t+1,:) = t/(t+1).*J(t,:) - 1/(t+1).*log2(p);
+
+                % alpha change
+                if t == 1
+                    oldAlpha = app.alpha(1,:);
+                else
+                    oldAlpha = app.alpha(t-1,:);
+                end
+                newAlpha = app.paramJ_gamma.Value * J(t,:) + app.paramJ_baseline.Value;
+                newAlpha = min(max( newAlpha,[0,0,0]),[1,1,1]); 
+
+                % Update alpha only when CS is present
+                for s = 1 : 3
+                    if CS(s)
+                        app.alpha(t,s) = newAlpha(s);
+                    else
+                        app.alpha(t,s) = oldAlpha(s);
+                    end
+                end
+
+                % V change
+                deltaV_pos = CS .* S .* app.alpha(t,:) .* app.paramJ_beta_ex.Value .* Lambda;
+                deltaV_bar = CS .* S .* app.alpha(t,:) .* app.paramJ_beta_in.Value .* Lambda_bar;
+
+                app.V(t,:) = V_dot;
+                app.V_pos(t+1,:) = app.V_pos(t,:) + deltaV_pos;
+                app.V_bar(t+1,:) = app.V_bar(t,:) + deltaV_bar;
+            end
     end
     app.numTrial = t;
     %%%%%%%%%%%%%%%%%%%%%%%%%%CCC_exported End %%%%%%%%%%%%%%%%%%%%%%%%%%
