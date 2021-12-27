@@ -1,7 +1,7 @@
 %% parameters
 tic;
 addpath('..');
-addpath('helper_function');
+addpath('../helper_function');
 
 model = 'M';
 numBinModel = 30; % number of bins to divide the V or alpha
@@ -73,7 +73,7 @@ for lr_acq = 1 : numel(param.M.lr_acq.range)
                     a2 = histcounts(alpha(1011:end,2,:),linspace(0,1,numBinModel + 1));
 
                   %% Check Score
-                  data = []
+                  data = [];
                   for offset = 0 : 0.5 : 10
                       bins = 1:30;
                       EXP_DATA_HIGH = normpdf(bins,RT_high.T1008 - RT_none.T1008-offset, 2.8);

@@ -30,24 +30,29 @@ outAlpha(1,:) = [param.alpha0.a, param.alpha0.b, param.alpha0.c];
 
 switch(model)
     case{'Rescorla-Wagner','RW'}
+        % lr_acq, lr_ext
+        parameter = [param.RW.lr_acq.value, param.RW.lr_ext.value]
         for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
+            CS = [schedule(t,1), schedule(t,2), schedule(t,3)];
             US = schedule(t,4);
 
-            Vtot = sum(outV(t,:) .* CS);
+            prevV = outV(t,:);
+            prevAlpha = outAlpha(t,:);
+
+            Vtot = prevV(1) * CS(1) + prevV(2) * CS(2) + prevV(3) * CS(3);
 
             Lambda = US .* schedule(t,5);
 
             if schedule(t,4) ~= 0 % US
-                lr = param.RW.lr_acq.value;
+                lr = parameter(1);
             else
-                lr = param.RW.lr_ext.value;
+                lr = parameter(2);
             end
 
-            deltaV = outAlpha(t,:) .* CS .* (lr .* (Lambda - Vtot));
+            deltaV = prevAlpha .* CS .* (lr .* (Lambda - Vtot));
 
-            outV(t + 1,:) = outV(t,:) + deltaV;
-            outAlpha(t + 1, :) = outAlpha(t,:);
+            outV(t + 1,:) = prevV + deltaV;
+            outAlpha(t + 1, :) = prevAlpha;
         end
     case{'Mackintosh', 'M'}
         % lr_acq, lr_ext, k, epsilon
@@ -94,31 +99,37 @@ switch(model)
     case{'Pearce-Hall', 'PH'}
         S = [param.PH.SA.value, param.PH.SB.value, param.PH.SC.value];
         for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
+            CS = [schedule(t,1), schedule(t,2), schedule(t,3)];
             US = schedule(t,4);
 
-            V_pos_tot = sum(outV_pos(t,:) .* CS);
-            V_bar_tot = sum(outV_bar(t,:) .* CS);
+            prevV_pos = outV_pos(t,:);
+            prevV_bar = outV_bar(t,:);
+            prevAlpha = outAlpha(t,:);
+
+            V_pos_tot = prevV_pos(1) * CS(1) + prevV_pos(2) * CS(2) + prevV_pos(3) * CS(3);
+            V_bar_tot = prevV_bar(1) * CS(1) + prevV_bar(2) * CS(2) + prevV_bar(3) * CS(3);
 
             Lambda = US .* schedule(t,5);
             Lambda_bar = (V_pos_tot - V_bar_tot) - Lambda;
 
-            deltaV_pos = CS .* S .* outAlpha(t,:) .* Lambda;
-            deltaV_bar = CS .* S .* outAlpha(t,:) .* Lambda_bar;
+            deltaV_pos = CS .* S .* prevAlpha .* Lambda;
+            deltaV_bar = CS .* S .* prevAlpha .* Lambda_bar;
 
             % alpha change
             newAlpha = repmat(abs(Lambda - (V_pos_tot - V_bar_tot)),1,3);
 
-            outV(t,:) = outV_pos(t,:) - outV_bar(t,:);
-            outV_pos(t+1,:) = outV_pos(t,:) + deltaV_pos;
-            outV_bar(t+1,:) = outV_bar(t,:) + deltaV_bar;
+            outV(t,:) = prevV_pos - prevV_bar;
+            outV_pos(t+1,:) = prevV_pos + deltaV_pos;
+            outV_bar(t+1,:) = prevV_bar + deltaV_bar;
             outAlpha(t+1,:) = newAlpha;
         end
 
     case{'Schmajuk-P-H', 'SPH'}
         S = [param.SPH.SA.value, param.SPH.SB.value, param.SPH.SC.value];
+        % beta_ext, beta_inh, gamma
+        parameter = [param.SPH.beta_ex.value, param.SPH.beta_in.value, param.SPH.gamma.value];
         for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
+            CS = [schedule(t,1), schedule(t,2), schedule(t,3)];
             US = schedule(t,4);
 
             % In the original paper, V_dot is used as exert
@@ -128,16 +139,21 @@ switch(model)
             % V_dot => V
             % V => V_pos
             % N => V_bar
-            V = outV_pos(t,:) - outV_bar(t,:);
+            prevV_pos = outV_pos(t,:);
+            prevV_bar = outV_bar(t,:);
+            prevAlpha = outAlpha(t,:);
+
+            V = prevV_pos - prevV_bar;
+
             Lambda = US .* schedule(t,5);
             Lambda_bar = sum(CS .* V) - Lambda;
 
             % alpha change
             if(t == 1) % if the first trial, use the initial value, not t-1
-                newAlpha = param.SPH.gamma.value * abs(Lambda) + (1-param.SPH.gamma.value) * outAlpha(1,:);
+                newAlpha = parameter(3) * abs(Lambda) + (1-parameter(3)) * outAlpha(1,:);
                 oldAlpha = outAlpha(1,:);
             else
-                newAlpha = param.SPH.gamma.value * abs(Lambda - sum(CS .* outV(t-1,:))) + (1-param.SPH.gamma.value) * outAlpha(t-1,:);
+                newAlpha = parameter(3) * abs(Lambda - sum(CS .* outV(t-1,:))) + (1-parameter(3)) * outAlpha(t-1,:);
                 oldAlpha = outAlpha(t-1,:);
             end
             newAlpha = min(max(...
@@ -155,49 +171,54 @@ switch(model)
             deltaV_bar = [0, 0, 0];
 
             if Lambda - sum(CS .* V) > 0
-                deltaV_pos = CS .* S .* outAlpha(t,:) .* param.SPH.beta_ex.value .* Lambda;
+                deltaV_pos = CS .* S .* prevAlpha .* parameter(1) .* Lambda;
             else
-                deltaV_bar = CS .* S .* outAlpha(t,:) .* param.SPH.beta_in.value .* Lambda_bar;
+                deltaV_bar = CS .* S .* prevAlpha .* parameter(2) .* Lambda_bar;
             end
             outV(t,:) = V;
-            outV_pos(t+1,:) = outV_pos(t,:) + deltaV_pos;
-            outV_bar(t+1,:) = outV_bar(t,:) + deltaV_bar;
+            outV_pos(t+1,:) = prevV_pos + deltaV_pos;
+            outV_bar(t+1,:) = prevV_bar + deltaV_bar;
         end
     case{'Esber-Haselgrove', 'EH'}
         phi = outAlpha(t,:);
         V_pre = [0, 0, 0];
+        % lr1_acq, lr2_acq, lr1_ext, lr2_ext, k, lr_pre
+        parameter = [param.EH.lr1_acq.value, param.EH.lr2_acq.value, param.EH.lr1_ext.value, param.EH.lr2_ext.value, param.EH.k.value, param.EH.lr_pre.value];
         for t = 1 : size(schedule,1)
-            CS = schedule(t,1:3);
+            CS = [schedule(t,1), schedule(t,2), schedule(t,3)];
             US = schedule(t,4);
 
-            V_pos_tot = sum(outV_pos(t,:) .* CS);
-            V_bar_tot = sum(outV_bar(t,:) .* CS);
+            prevV_pos = outV_pos(t,:);
+            prevV_bar = outV_bar(t,:);
+
+            V_pos_tot = prevV_pos(1) * CS(1) + prevV_pos(2) * CS(2) +  prevV_pos(3) * CS(3);
+            V_bar_tot = prevV_bar(1) * CS(1) + prevV_bar(2) * CS(2) +  prevV_bar(3) * CS(3);
 
             Lambda = US .* schedule(t,5);
 
-            newAlpha = phi + (outV_pos(t,:) + outV_bar(t,:)) - param.EH.k.value * V_pre;
+            newAlpha = phi + (prevV_pos + prevV_bar) - parameter(5) * V_pre;
 
             if((Lambda - (V_pos_tot - V_bar_tot)) > 0)
-                beta_pos = param.EH.lr1_acq.value;
-                beta_bar = param.EH.lr2_acq.value;
+                beta_pos = parameter(1);
+                beta_bar = parameter(2);
             else
-                beta_pos = param.EH.lr1_ext.value;
-                beta_bar = param.EH.lr2_ext.value;
+                beta_pos = parameter(3);
+                beta_bar = parameter(4);
             end
             deltaV_pos = CS .* newAlpha .* beta_pos .* (Lambda - (V_pos_tot - V_bar_tot));
             deltaV_bar = CS .* newAlpha .* beta_bar .* ((V_pos_tot - V_bar_tot) - Lambda);
 
-            outV(t,:) = outV_pos(t,:) - outV_bar(t,:);
+            outV(t,:) = prevV_pos - prevV_bar;
 
             %if param.EH.limitV
-            outV_pos(t+1,:) = min(max(outV_pos(t,:) + deltaV_pos,[0,0,0]),[1,1,1]);
-            outV_bar(t+1,:) = min(max(outV_bar(t,:) + deltaV_bar,[0,0,0]),[1,1,1]);
+            outV_pos(t+1,:) = min(max(prevV_pos + deltaV_pos,[0,0,0]),[1,1,1]);
+            outV_bar(t+1,:) = min(max(prevV_neg + deltaV_bar,[0,0,0]),[1,1,1]);
 %             else
 %                 outV_pos(t+1,:) = outV_pos(t,:) + deltaV_pos;
 %                 outV_bar(t+1,:) = outV_bar(t,:) + deltaV_bar;
 %             end
             outAlpha(t,:) = newAlpha;
-            V_pre = V_pre + param.EH.lr_pre.value * (CS - V_pre);
+            V_pre = V_pre + parameter(6) * (CS - V_pre);
         end
 end % switch end
 
