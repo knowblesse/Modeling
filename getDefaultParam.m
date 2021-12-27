@@ -58,18 +58,14 @@ param.EH.lr_pre.range = 0.01 : 0.01 : 0.05;
 
 % Schmajuk-Pearson-Hall Model
 param.SPH.SA.value = 0.3;
-param.SPH.SA.range = 0.1 : 0.1 : 0.3;
-
 param.SPH.SB.value = 0.3;
-param.SPH.SB.range = 0.1 : 0.1 : 0.3;
-
-% param.SPH.SC.range = 0.3;
-% param.SPH.SC.value = 0.1 : 0.05 : 0.5;
+param.SPH.SC.value = 0.3;
 
 param.SPH.beta_ex.value = 0.1;
 param.SPH.beta_ex.range = 0.05 : 0.05 : 0.2;
 
-param.SPH.beta_in.value = 0.05;
+%param.SPH.beta_in.value = 0.05;
+param.SPH.beta_in.value = 0.09;
 param.SPH.beta_in.range = 0.05 : 0.05 : 0.2;
 
 param.SPH.gamma.value = 0.2;
