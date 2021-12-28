@@ -16,6 +16,11 @@ exp1_high_reward = 1; %5 cents
 exp1_low_reward = 0.2; %1 cents
 
 %% Experiment Schedule
+% +--------+--------+--------+--------+---------------------------+
+% | CS1    | CS2    | CS3    | US     | US intensity(reward size) |
+% +--------+--------+--------+--------+---------------------------+
+% | 1 or 0 | 1 or 0 | 1 or 0 | 1 or 0 | float                     |
+% +--------+--------+--------+--------+---------------------------+
 schedule_training = [...
     repmat([1,0,0,1,exp1_high_reward],4,1);...
     repmat([1,0,0,1,exp1_low_reward],1,1);...
