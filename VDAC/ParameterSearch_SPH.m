@@ -130,12 +130,16 @@ V_high = histcounts(V(1011:end,1,:),linspace(0,1,numBinModel + 1))/numel(V(1011:
 V_low = histcounts(V(1011:end,2,:),linspace(0,1,numBinModel + 1))/numel(V(1011:end,2,:));
 
 
-figure(2);
-clf(2);
+figure(3);
+clf(3);
 plot(V_high,'r');
 hold on;
 plot(V_low,'b');
 plot(normpdf(linspace(fittedLinearTransform(1), fittedLinearTransform(2), 30), Exp_high_mean, Exp_high_sd),'r--');
 plot(normpdf(linspace(fittedLinearTransform(1), fittedLinearTransform(2), 30), Exp_low_mean, Exp_low_sd),'b--');
+
+plot(normpdf(linspace(x(1), x(2), 30), Exp_high_mean, Exp_high_sd),'r--');
+plot(normpdf(linspace(x(1), x(2), 30), Exp_low_mean, Exp_low_sd),'b--');
+
 % t = text('log likelihood = -0.2519',25,0.15)
-title('SPH');
+title('fmincon');

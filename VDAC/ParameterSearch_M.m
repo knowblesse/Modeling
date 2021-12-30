@@ -104,7 +104,8 @@ for lr_acq = 1 : numel(param.M.lr_acq.range)
                         bestParam = param;
                         fittedLinearTransform = x;
                     end
-                    fprintf('log-likelihood = %f\n', fval);
+                    fprintf('Best Param : %f, %f, %f, %f\n', param.M.lr_acq.value, param.M.lr_ext.value, param.M.k.value, param.M.epsilon.value);
+                    fprintf('log-likelihood = %f\n\n', fval);
                 end
                
             end
@@ -112,3 +113,8 @@ for lr_acq = 1 : numel(param.M.lr_acq.range)
     end
 end
 
+%0.080000, 0.040000, 0.200000, 0.020000
+% param.M.lr_acq.value = 0.08;
+% param.M.lr_ext.value = 0.04;
+% param.M.k.value = 0.2;
+% param.M.epsilon.value = 0.02;
