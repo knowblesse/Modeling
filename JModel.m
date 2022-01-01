@@ -2,30 +2,34 @@ function sim = JModel(schedule)
 %% Output Values
 V = zeros(size(schedule,1),3);
 alpha = zeros(size(schedule,1),3);
-J = zeros(size(schedule,1),3);
+V_momentum = zeros(size(schedule,1),3);
 V_pos = zeros(size(schedule,1),3);
 V_bar = zeros(size(schedule,1),3);
-p = zeros(size(schedule,1),3);
+V_difference = zeros(size(schedule,1),3);
+
 %% Parameters
 S = 1;
 beta_ex = 0.1;
 beta_in= 0.09;
 gamma= 0.5;
 baseline = 0.2;
-minimum_p = 0.01;
 
 %% Run
 for t = 1 : size(schedule,1)
     CS = schedule(t,1:3);
     US = schedule(t,4);
-
     V_dot = V_pos(t,:) - V_bar(t,:);
     Lambda = US .* schedule(t,5);
     Lambda_bar = sum(CS .* V_dot) - Lambda;
-
-    p(t,:) = max(1 - abs(min(max(CS .* V_dot,0),1) - Lambda), minimum_p);
     
-    J(t+1,:) = t/(t+1).*J(t,:) - 1/(t+1).*log2(p(t,:));
+    if t == 1
+        V_momentum(t,:) = V_dot;
+    else
+        V_momentum(t,:) = 0.9 * V_dot + 0.1 * V_momentum(t-1,:);
+    end
+    
+    V_difference(t,:) = Lambda - V_momentum(t,:);
+    
 
     % alpha change
     if t == 1
@@ -33,7 +37,7 @@ for t = 1 : size(schedule,1)
     else
         oldAlpha = alpha(t-1,:);
     end
-    newAlpha = gamma * J(t,:) + baseline;
+    newAlpha = baseline;
     newAlpha = min(max(newAlpha,[0,0,0]),[1,1,1]);%limit alpha to [0,1] 
     
     % update alpha when CS is present
@@ -64,8 +68,8 @@ end
 sim = struct();
 sim.V = V;
 sim.alpha = alpha;
-sim.J = J;
+sim.V_momentum = V_momentum;
 sim.V_pos = V_pos;
 sim.V_bar = V_bar;
-sim.p = p;
+sim.V_difference = V_difference;
 end
