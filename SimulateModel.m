@@ -31,7 +31,7 @@ outAlpha(1,:) = [param.alpha0.a, param.alpha0.b, param.alpha0.c];
 switch(model)
     case{'Rescorla-Wagner','RW'}
         % lr_acq, lr_ext
-        parameter = [param.RW.lr_acq.value, param.RW.lr_ext.value]
+        parameter = [param.RW.lr_acq.value, param.RW.lr_ext.value];
         for t = 1 : size(schedule,1)
             CS = [schedule(t,1), schedule(t,2), schedule(t,3)];
             US = schedule(t,4);
@@ -97,7 +97,7 @@ switch(model)
         end
 
     case{'Pearce-Hall', 'PH'}
-        S = [param.PH.SA.value, param.PH.SB.value, param.PH.SC.value];
+        S = repmat(param.PH.S.value, 1, 3);
         for t = 1 : size(schedule,1)
             CS = [schedule(t,1), schedule(t,2), schedule(t,3)];
             US = schedule(t,4);
@@ -125,7 +125,7 @@ switch(model)
         end
 
     case{'Schmajuk-P-H', 'SPH'}
-        S = [param.SPH.SA.value, param.SPH.SB.value, param.SPH.SC.value];
+        S = repmat(param.SPH.S.value, 1, 3);
         % beta_ext, beta_inh, gamma
         parameter = [param.SPH.beta_ex.value, param.SPH.beta_in.value, param.SPH.gamma.value];
         for t = 1 : size(schedule,1)
@@ -180,7 +180,7 @@ switch(model)
             outV_bar(t+1,:) = prevV_bar + deltaV_bar;
         end
     case{'Esber-Haselgrove', 'EH'}
-        phi = outAlpha(t,:);
+        phi = outAlpha(1,:);
         V_pre = [0, 0, 0];
         % lr1_acq, lr2_acq, lr1_ext, lr2_ext, k, lr_pre
         parameter = [param.EH.lr1_acq.value, param.EH.lr2_acq.value, param.EH.lr1_ext.value, param.EH.lr2_ext.value, param.EH.k.value, param.EH.lr_pre.value];
@@ -212,7 +212,7 @@ switch(model)
 
             %if param.EH.limitV
             outV_pos(t+1,:) = min(max(prevV_pos + deltaV_pos,[0,0,0]),[1,1,1]);
-            outV_bar(t+1,:) = min(max(prevV_neg + deltaV_bar,[0,0,0]),[1,1,1]);
+            outV_bar(t+1,:) = min(max(prevV_bar + deltaV_bar,[0,0,0]),[1,1,1]);
 %             else
 %                 outV_pos(t+1,:) = outV_pos(t,:) + deltaV_pos;
 %                 outV_bar(t+1,:) = outV_bar(t,:) + deltaV_bar;

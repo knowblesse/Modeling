@@ -59,55 +59,57 @@ fitUpperbound = [+30, +30];
 param = getDefaultParam();
 minLogLikelihood = 0;
 bestParam = [];
-for beta_ex = 1 : numel(param.SPH.beta_ex.range)
-    param.SPH.beta_ex.value = param.SPH.beta_ex.range(beta_ex);
-    
-    for beta_in = 1 : numel(param.SPH.beta_in.range)
-        param.M.lr_ext.value = param.SPH.beta_in.range(beta_in);
+for S = 1 : numel(param.SPH.S.range)
+    param.SPH.S.value = param.SPH.S.range(S);
+    for beta_ex = 1 : numel(param.SPH.beta_ex.range)
+        param.SPH.beta_ex.value = param.SPH.beta_ex.range(beta_ex);
         
-        if param.SPH.beta_in.value >= param.SPH.beta_ex.value
-            % check acquisition learning rate is always greater than the extinction learning rate
-            continue;
-        else
-            for gamma = 1 : numel(param.SPH.gamma.range)
-                param.SPH.gamma.value = param.SPH.gamma.range(gamma);
+        for beta_in = 1 : numel(param.SPH.beta_in.range)
+            param.M.lr_ext.value = param.SPH.beta_in.range(beta_in);
+            
+            if param.SPH.beta_in.value >= param.SPH.beta_ex.value
+                % check acquisition learning rate is always greater than the extinction learning rate
+                continue;
+            else
+                for gamma = 1 : numel(param.SPH.gamma.range)
+                    param.SPH.gamma.value = param.SPH.gamma.range(gamma);
 
-                %% Run
-                V = zeros(schedule_training_N + schedule_testing_N,3,num_repeat);
-                alpha = zeros(schedule_training_N + schedule_testing_N,3,num_repeat);
+                    %% Run
+                    V = zeros(schedule_training_N + schedule_testing_N,3,num_repeat);
+                    alpha = zeros(schedule_training_N + schedule_testing_N,3,num_repeat);
 
-                for r = 1 : num_repeat
-                    % Shuffle schedule for repeated simulation
-                    schedule_shuffled = [shuffle1D(repmat(schedule_training,schedule_training_repeat,1)); shuffle1D(repmat(schedule_testing,schedule_testing_repeat,1))];
+                    for r = 1 : num_repeat
+                        % Shuffle schedule for repeated simulation
+                        schedule_shuffled = [shuffle1D(repmat(schedule_training,schedule_training_repeat,1)); shuffle1D(repmat(schedule_testing,schedule_testing_repeat,1))];
 
-                    [outV, outAlpha] = SimulateModel(schedule_shuffled,model, param);
+                        [outV, outAlpha] = SimulateModel(schedule_shuffled,model, param);
 
-                    V(:,:,r) = outV; % [trial, cs type, repeat]
-                    alpha(:,:,r) = outAlpha;
+                        V(:,:,r) = outV; % [trial, cs type, repeat]
+                        alpha(:,:,r) = outAlpha;
+                    end
+
+                    V_high = histcounts(V(schedule_training_N+1:end,1,:),linspace(0,1,numBinModel + 1))/numel(V(schedule_training_N+1:end,1,:));
+                    V_low = histcounts(V(schedule_training_N+1:end,2,:),linspace(0,1,numBinModel + 1))/numel(V(schedule_training_N+1:end,2,:));
+
+                    %a1 = histcounts(alpha(1011:end,1,:),linspace(0,1,numBinModel + 1));
+                    %a2 = histcounts(alpha(1011:end,2,:),linspace(0,1,numBinModel + 1));
+                    
+                    fitfunction = @(X) evalModel(X, V_high, V_low, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd);
+                    
+                    [x, fval] = fmincon(fitfunction, [0,30], [1,-1], [1], [], [], fitLowerbound, fitUpperbound, [], opts);
+                    
+                    if fval < minLogLikelihood
+                        minLogLikelihood = fval;
+                        bestParam = param;
+                        fittedLinearTransform = x;
+                    end
+                    fprintf('log-likelihood = %f\n', fval);
+                   
                 end
-
-                V_high = histcounts(V(schedule_training_N+1:end,1,:),linspace(0,1,numBinModel + 1))/numel(V(schedule_training_N+1:end,1,:));
-                V_low = histcounts(V(schedule_training_N+1:end,2,:),linspace(0,1,numBinModel + 1))/numel(V(schedule_training_N+1:end,2,:));
-
-                %a1 = histcounts(alpha(1011:end,1,:),linspace(0,1,numBinModel + 1));
-                %a2 = histcounts(alpha(1011:end,2,:),linspace(0,1,numBinModel + 1));
-                
-                fitfunction = @(X) evalModel(X, V_high, V_low, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd);
-                
-                [x, fval] = fmincon(fitfunction, [0,30], [1,-1], [1], [], [], fitLowerbound, fitUpperbound, [], opts);
-                
-                if fval < minLogLikelihood
-                    minLogLikelihood = fval;
-                    bestParam = param;
-                    fittedLinearTransform = x;
-                end
-                fprintf('log-likelihood = %f\n', fval);
-               
             end
         end
     end
 end
-
 
 
 param = bestParam;

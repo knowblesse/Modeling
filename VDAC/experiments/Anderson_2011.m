@@ -43,4 +43,4 @@ schedule.schedule_testing_N = size(schedule.schedule_testing,1) * schedule.sched
 % experiment specific range for matching V to RT or score difference from the experiment
 ltp_lowerbound = [-30, -30];
 ltp_upperbound = [+30, +30];
-ltp_x0
+ltp_x0 = [5, 25]; % rule of thumb 

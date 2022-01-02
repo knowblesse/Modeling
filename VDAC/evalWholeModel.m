@@ -1,9 +1,5 @@
-function likelihood = evalWholeModel(X, schedule, model, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd)
-%+---+---+--------+--------+---+---------+
-%| 1 | 2 | 3      | 4      | 5 | 6       |
-%+---+---+--------+--------+---+---------+
-%| a | b | lr_acq | lr_ext | k | epsilon |
-%+---+---+--------+--------+---+---------+
+function likelihood = evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd)
+
 %% Schedule
 schedule_training = schedule.schedule_training;
 schedule_training_repeat = schedule.schedule_training_repeat;
@@ -14,16 +10,14 @@ schedule_testing_repeat = schedule.schedule_testing_repeat;
 schedule_testing_N = schedule.schedule_testing_N;
 
 %% Parameters
-num_repeat = 100;
 numBinModel = 30; % number of bins to divide the V or alpha
 param = getDefaultParam();
-param.M.lr_acq.value = X(3);
-param.M.lr_ext.value = X(4);
-param.M.k.value = X(5);
-param.M.epsilon.value = X(6);
+fnames = fieldnames(param.(model));
+for fn = 1 : numel(fieldnames(param.(model)))
+    param.(model).(fnames{fn}).value = X(2+fn);
+end
 
 %% Run
-
 V = zeros(schedule_training_N + schedule_testing_N,3,num_repeat);
 alpha = zeros(schedule_training_N + schedule_testing_N,3,num_repeat);
 

@@ -20,7 +20,7 @@ param.RW.lr_ext.value = 0.05;
 param.RW.lr_ext.range = 0.05 : 0.05 : 0.3;
 
 opt_option.RW.A = [-1,1];
-opt_ption.RW.b = [0];
+opt_option.RW.b = [0];
 
 % Mackintosh Model
 param.M.lr_acq.value = 0.08;
@@ -30,19 +30,13 @@ param.M.lr_ext.value = 0.04;
 param.M.lr_ext.range = 0.04 : 0.04 : 0.2;
 
 param.M.k.value = 0.05;
-param.M.k.range = 0.05 : 0.05 : 0.2;
+param.M.k.range = 0.05 : 0.05 : 0.5;
 
 param.M.epsilon.value = 0.02;
-param.M.epsilon.range = 0.02 : 0.02 : 0.1;
+param.M.epsilon.range = 0.02 : 0.02 : 0.5;
 
 opt_option.M.A = [-1,1,0,0]; % lr_acq >= lr_ext
 opt_option.M.b = [0];
-
-% Pearce-Hall Model
-param.PH.SA.value = 0.04;
-param.PH.SA.range = 0.02 : 0.02 : 0.2;
-param.PH.SB.value = 0.04;
-param.PH.SC.value = 0.04;
 
 % Esber Haselgrove Model
 param.EH.lr1_acq.value = 0.05; % lr1 : when delta V >= 0 
@@ -66,17 +60,15 @@ param.EH.lr_pre.range = 0.01 : 0.01 : 0.05;
 % param.EH.limitV = false;
 
 opt_option.EH.A = [...
-    -1, 0, 1, 0;
-    0, -1, 0, 1];
-opt_option.EH.b = [0;0];
+    -1, 0, 1, 0, 0, 0;
+    0, -1, 0, 1, 0, 0];
+opt_option.EH.b = [0,0];
 
 % Schmajuk-Pearson-Hall Model
-param.SPH.SA.value = 0.3;
-param.SPH.SA.range = 0.1 : 0.1 : 1;
-param.SPH.SB.value = 0.3;
-param.SPH.SC.value = 0.3;
+param.SPH.S.value = 0.3;
+param.SPH.S.range = 0.1 : 0.1 : 1;
 
-param.SPH.beta_ex.value = 0.1;
+param.SPH.beta_ex.value = 0.3; %0.1
 param.SPH.beta_ex.range = 0.05 : 0.05 : 0.2;
 
 param.SPH.beta_in.value = 0.09;
