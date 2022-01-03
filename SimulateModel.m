@@ -141,7 +141,6 @@ switch(model)
             % N => V_bar
             prevV_pos = outV_pos(t,:);
             prevV_bar = outV_bar(t,:);
-            prevAlpha = outAlpha(t,:);
 
             V = prevV_pos - prevV_bar;
 
@@ -171,9 +170,9 @@ switch(model)
             deltaV_bar = [0, 0, 0];
 
             if Lambda - sum(CS .* V) > 0
-                deltaV_pos = CS .* S .* prevAlpha .* parameter(1) .* Lambda;
+                deltaV_pos = CS .* S .* outAlpha(t,:) .* parameter(1) .* Lambda;
             else
-                deltaV_bar = CS .* S .* prevAlpha .* parameter(2) .* Lambda_bar;
+                deltaV_bar = CS .* S .* outAlpha(t,:) .* parameter(2) .* Lambda_bar;
             end
             outV(t,:) = V;
             outV_pos(t+1,:) = prevV_pos + deltaV_pos;
