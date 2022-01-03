@@ -2,16 +2,19 @@
 % Parameter Fitting Script
 
 %% parameters
-
+rng('shuffle');
 addpath('..');
 addpath('../helper_function');
 addpath('./experiments');
 
 num_repeat = 200;
 
-%% Load Experiment
-Anderson_2011;
+CC.high = [1,0.3,0.3];
+CC.low = [0.3,1,0.3];
 
+%% Load Experiment
+%Anderson_2011;
+Anderson_Halpern_2017;
 %% Optimization parameters
 opts = optimoptions('fmincon',...
     'Display', 'none',...
@@ -24,8 +27,7 @@ opts = optimoptions('fmincon',...
     'FiniteDifferenceStepSize', 1e-2); % 1e-2 was the best
 
 %% Run Through Models
-%models = {'RW', 'M', 'SPH', 'EH'};
-models = {'SPH'};
+models = {'RW', 'M', 'SPH', 'EH'};
 for model = models
     %% Load Parameters
     [param, opt_option] = getDefaultParam();
@@ -63,4 +65,34 @@ for model = models
     for fn = 1 : numel(fieldnames(modelParam))
         fprintf('%10s : %.3f\n', fnames{fn}, x(2+fn));
     end
+    
+    %% Draw Result
+    [likelihood, V, alpha, V_high, V_low, Exp_high, Exp_low] = fitfunction(x);
+    fig = figure('name', model, 'Position', [200, 120, 1200, 800]);
+    ax1 = subplot(2,4,1:3);
+    [~,v_plot_1] = plot_shade(ax1, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
+    [~,v_plot_2] = plot_shade(ax1, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
+    ylim([0,1]);
+    legend([v_plot_1{1}, v_plot_2{1}], {'high reward', 'low reward'});
+    
+    ax2 = subplot(2,4,4);
+    bar((1:30)-0.25, V_high, 'FaceColor', CC.high, 'BarWidth',0.5);
+    hold on;
+    bar((1:30)+0.25, V_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
+    ax2.View = [90, -90];
+    
+    ax3 = subplot(2,4,5:6);
+    hold on;
+    bar((1:30)-0.25, V_high, 'FaceColor', CC.high, 'BarWidth',0.5);
+    bar((1:30)+0.25, V_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
+    plot(Exp_high, 'Color', CC.high);
+    plot(Exp_low, 'Color', CC.low);
+    
+    ax4 = subplot(2,4,7:8);
+    cla;
+    axis off;
+    text(0.05, 1, strcat("Model : ", model), 'FontSize', 20);
+    text(0.05, 0.8, strcat("Negative Log-Likelihood : ", num2str(fval)), 'FontSize', 20);
+    text(0.05, 0.6, strcat("Parameters : ", num2str(x(1)), " ", num2str(x(2))), 'FontSize', 20);
+    text(0.05, 0.4, num2str(x(3:end), ' %.2f'), 'FontSize', 15);
 end

@@ -1,4 +1,4 @@
-function likelihood = evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd)
+function [likelihood, V, alpha, V_high, V_low, Exp_high, Exp_low] = evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd)
 
 %% Schedule
 schedule_training = schedule.schedule_training;
