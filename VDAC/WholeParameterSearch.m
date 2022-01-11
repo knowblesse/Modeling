@@ -22,13 +22,15 @@ opts = optimoptions('fmincon',...
     'Algorithm', 'sqp',... % default (int. point) is faster, but tend to be not accurate near constraints. 
     'MaxFunctionEvaluations', 10000,... % usually this means nothing
     'MaxIterations', 5000,... % this too. 
-    'PlotFcn', 'optimplotfvalconstr',...
+    'PlotFcn', [],... %'optimplotfvalconstr'
     'FiniteDifferenceType', 'central',... % when calculating the gradient, calculate both sides
     'FiniteDifferenceStepSize', 1e-2); % 1e-2 was the best
 
 %% Run Through Models
-models = {'RW', 'M', 'SPH', 'EH'};
+%models = {'RW', 'M', 'SPH', 'EH'};
+models = {'SPH'};
 for model = models
+    
     %% Load Parameters
     [param, opt_option] = getDefaultParam();
     fitLowerbound = ltp_lowerbound;
@@ -54,8 +56,18 @@ for model = models
     
     %% Run Optimization
     fitfunction = @(X) evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd);
-
-    [x, fval, exitflag, output] = fmincon(fitfunction, x0, A, b, [], [], fitLowerbound, fitUpperbound, [], opts);
+    
+    ms = MultiStart;
+    problem = createOptimProblem('fmincon',...
+        'objective', fitfunction,...
+        'x0', x0,...
+        'Aineq', A,...
+        'bineq', b,...
+        'lb', fitLowerbound,...
+        'ub', fitUpperbound,...
+        'options', opts);
+    
+    [x, fval] = run(ms, problem, 20);
                         
     %% Print result
     fprintf('-----------%5s------------\n', model);
