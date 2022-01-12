@@ -12,8 +12,8 @@ Exp_high_sd = 3.07;
 Exp_low_mean = RT_low - RT_none;
 Exp_low_sd = 4.08;
 
-exp1_high_reward = 1; %10 cents
-exp1_low_reward = 0.2; %2 cents
+high_reward = 1; %10 cents
+low_reward = 0.2; %2 cents
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+
@@ -23,8 +23,8 @@ exp1_low_reward = 0.2; %2 cents
 % +--------+--------+--------+--------+---------------------------+
 schedule = struct();
 schedule.schedule_training = [...
-    repmat([1,0,0,1,exp1_high_reward],1,1);...
-    repmat([0,1,0,1,exp1_low_reward],1,1);...
+    repmat([1,0,0,1,high_reward],1,1);...
+    repmat([0,1,0,1,low_reward],1,1);...
     ]; % thesis : 120 trials x 4 blocks of spoken words = 480 trials --> 2 trial set * 240
 schedule.schedule_training_repeat = 240;
 schedule.schedule_training_N = size(schedule.schedule_training,1) * schedule.schedule_training_repeat;

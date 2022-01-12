@@ -1,17 +1,17 @@
 %% Anderson_Halpern_2017
 
 %% Experiment Data
-RT_none.T240 = 688;
-RT_low.T240 = 689;
-RT_high.T240 = 698;
+RT_none = 688;
+RT_low = 689;
+RT_high = 698;
 
-Exp_high_mean = RT_high.T240 - RT_none.T240;
-Exp_high_sd = 2.8; %%%%%%%%%%%%%% 임의값
-Exp_low_mean = RT_low.T240 - RT_none.T240;
-Exp_low_sd = 2.8;
+Exp_high_mean = RT_high - RT_none;
+Exp_high_sd = 13.25;
+Exp_low_mean = RT_low - RT_none;
+Exp_low_sd = 13.25;
 
-exp1_high_reward = 1; %10 cents
-exp1_low_reward = 0.2; %2 cents
+high_reward = 1; %10 cents
+low_reward = 0.2; %2 cents
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+
@@ -21,10 +21,10 @@ exp1_low_reward = 0.2; %2 cents
 % +--------+--------+--------+--------+---------------------------+
 schedule = struct();
 schedule.schedule_training = [...
-    repmat([1,0,0,1,exp1_high_reward],4,1);...
-    repmat([1,0,0,1,exp1_low_reward],1,1);...
-    repmat([0,1,0,1,exp1_high_reward],1,1);...
-    repmat([0,1,0,1,exp1_low_reward],4,1);...
+    repmat([1,0,0,1,high_reward],4,1);...
+    repmat([1,0,0,1,low_reward],1,1);...
+    repmat([0,1,0,1,high_reward],1,1);...
+    repmat([0,1,0,1,low_reward],4,1);...
     ]; % thesis : 240 trials vs Modeling : 240 trials (10 trial set * 24)
 schedule.schedule_training_repeat = 24;
 schedule.schedule_training_N = size(schedule.schedule_training,1) * schedule.schedule_training_repeat;
