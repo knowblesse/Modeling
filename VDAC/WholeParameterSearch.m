@@ -7,6 +7,7 @@ addpath('..');
 addpath('../helper_function');
 addpath('./experiments');
 
+mode = 'alpha';
 num_repeat = 200;
 
 CC.high = [231,124,141]./255;
@@ -59,7 +60,7 @@ for model = models
 
     b = [0,opt_option.(model).b]'; 
     %% Optimization Model
-    fitfunction = @(X) evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd);
+    fitfunction = @(X) evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd, mode);
 
     %% Global Optimizer Options
     problem = createOptimProblem('fmincon',...
@@ -115,6 +116,6 @@ for model = models
     text(0.05, 0.6, strcat("Parameters : ", num2str(output_result.(model).x(1)), " ", num2str(output_result.(model).x(2))), 'FontSize', 20);
     text(0.05, 0.4, num2str(output_result.(model).x(3:end), ' %.2f'), 'FontSize', 15);
     
-    savefig(fig,strcat(model,'_',exp,'_result.fig'));
+    savefig(fig,strcat(model,'_',exp,'_',mode,'_result.fig'));
 end
-save(strcat(exp,'_result.mat'),'output_result');
+save(strcat(exp,'_',mode,'_result.mat'),'output_result');
