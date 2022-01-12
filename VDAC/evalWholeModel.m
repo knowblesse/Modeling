@@ -1,4 +1,4 @@
-function [likelihood, V, alpha, V_high, V_low, alpha_high, alpha_low, Exp_high, Exp_low] = evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd, mode)
+function [likelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low] = evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd, mode)
 
 
 %% Schedule
@@ -34,17 +34,14 @@ end
 
 Exp_high = normpdf(linspace(X(1), X(2), 30), Exp_high_mean, Exp_high_sd);
 Exp_low  = normpdf(linspace(X(1), X(2), 30), Exp_low_mean, Exp_low_sd);
-V_high = histcounts(V(schedule_training_N+1:end,1,:),linspace(0,1,numBinModel + 1))/numel(V(schedule_training_N+1:end,1,:));
-V_low  = histcounts(V(schedule_training_N+1:end,2,:),linspace(0,1,numBinModel + 1))/numel(V(schedule_training_N+1:end,2,:));
-alpha_high = histcounts(alpha(schedule_training_N+1:end,1,:),linspace(0,1,numBinModel + 1))/numel(alpha(schedule_training_N+1:end,1,:));
-alpha_low = histcounts(alpha(schedule_training_N+1:end,2,:),linspace(0,1,numBinModel + 1))/numel(alpha(schedule_training_N+2:end,1,:));
 if strcmp(mode, 'V')
-  
-    likelihood = - (V_high * Exp_high' + V_low * Exp_low');
+    Model_high = histcounts(V(schedule_training_N+1:end,1,:),linspace(0,1,numBinModel + 1))/numel(V(schedule_training_N+1:end,1,:));
+    Model_low  = histcounts(V(schedule_training_N+1:end,2,:),linspace(0,1,numBinModel + 1))/numel(V(schedule_training_N+1:end,2,:));
 elseif strcmp(mode, 'alpha')
-
-    likelihood = - (alpha_high * Exp_high' + alpha_low * Exp_low');
+    Model_high = histcounts(alpha(schedule_training_N+1:end,1,:),linspace(0,1,numBinModel + 1))/numel(alpha(schedule_training_N+1:end,1,:));
+    Model_low = histcounts(alpha(schedule_training_N+1:end,2,:),linspace(0,1,numBinModel + 1))/numel(alpha(schedule_training_N+2:end,1,:));
 else
     error('wrong mode');
 end
+likelihood = - (Model_high * Exp_high' + Model_low * Exp_low');
 end

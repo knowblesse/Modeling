@@ -14,9 +14,11 @@ CC.high = [231,124,141]./255;
 CC.low = [94,165,197]./255;
 
 %% Load Experiment
-%exp = 'Anderson_2011';
-exp = 'Anderson_Halpern_2017';
+% exp = 'Anderson_2011';
+% exp = 'Anderson_Halpern_2017';
 % exp = 'Cho_Cho_Exp1_2021';
+% exp = 'Anderson_2016';
+% exp = 'Mine_Saiki_2017';
 eval(exp);
 
 %% Local Optimizer Options
@@ -87,25 +89,26 @@ for model = models
         fprintf('%10s : %.3f\n', fnames{fn}, output_result.(model).x(2+fn));
     end
     fprintf('Time : %d sec \n',floor(toc))
+
     %% Draw Result
-    [likelihood, V, alpha, V_high, V_low, alpha_high, alpha_low, Exp_high, Exp_low] = fitfunction(output_result.(model).x);
+    [likelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low] = fitfunction(output_result.(model).x);
     fig = figure('name', model, 'Position', [200, 120, 1200, 800]);
     ax1 = subplot(2,4,1:3);
-    [~,v_plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true, 'LineStyle', '--');
-    [~,v_plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true, 'LineStyle', '--');
+    [~,plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
+    [~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
     ylim([0,1]);
-    legend([v_plot_1{1}, v_plot_2{1}], {'high reward', 'low reward'});
+    legend([plot_1{1}, plot_2{1}], {'high reward', 'low reward'});
     
     ax2 = subplot(2,4,4);
-    bar((1:30)-0.25, alpha_high, 'FaceColor', CC.high, 'BarWidth',0.5);
+    bar((1:30)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
     hold on;
-    bar((1:30)+0.25, alpha_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
+    bar((1:30)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
     ax2.View = [90, -90];
     
     ax3 = subplot(2,4,5:6);
     hold on;
-    bar((1:30)-0.25, alpha_high, 'FaceColor', CC.high, 'BarWidth',0.5);
-    bar((1:30)+0.25, alpha_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
+    bar((1:30)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
+    bar((1:30)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
     plot(Exp_high, 'Color', CC.high);
     plot(Exp_low, 'Color', CC.low);
     
