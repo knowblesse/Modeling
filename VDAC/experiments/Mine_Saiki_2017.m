@@ -1,18 +1,19 @@
-%% Anderson et al 2011
-% Anderson et al. 2011 simulation
+%% Mine_Saiki_2017
+% Mine & Saiki 2017 simulation
+% Exp2
 
 %% Experiment Data
-RT_none = 665;
-RT_low = 673;
-RT_high = 681;
+RT_none = 844.73;
+RT_low = 850.02;
+RT_high = 869.31;
 
 Exp_high_mean = RT_high - RT_none;
-Exp_high_sd = 2.6;
+Exp_high_sd = 18.35;
 Exp_low_mean = RT_low - RT_none;
-Exp_low_sd = 2.8;
+Exp_low_sd = 17.59;
 
-exp1_high_reward = 1; %5 cents
-exp1_low_reward = 0.2; %1 cents
+high_reward = 1; %100 yen
+low_reward = 0.1; %10 yen
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+
@@ -22,21 +23,20 @@ exp1_low_reward = 0.2; %1 cents
 % +--------+--------+--------+--------+---------------------------+
 schedule = struct();
 schedule.schedule_training = [...
-    repmat([1,0,0,1,exp1_high_reward],4,1);...
-    repmat([1,0,0,1,exp1_low_reward],1,1);...
-    repmat([0,1,0,1,exp1_high_reward],1,1);...
-    repmat([0,1,0,1,exp1_low_reward],4,1);...
-    ]; % thesis : 1008 trials vs Modeling : 1010 trials (10 trial set * 101)
-schedule.schedule_training_repeat = 101;
+    repmat([1,0,0,1,high_reward],3,1);...
+    repmat([1,0,0,1,low_reward],1,1);...
+    repmat([0,1,0,1,low_reward],3,1);...
+    repmat([0,1,0,1,high_reward],1,1);...
+    ]; % thesis : 48 trials x 5 blocks = 240 trials --> 8 trial set * 30 
+schedule.schedule_training_repeat = 30;
 schedule.schedule_training_N = size(schedule.schedule_training,1) * schedule.schedule_training_repeat;
 
 schedule.schedule_testing = [...
     [1,0,0,0,0];
     [0,1,0,0,0];
     [0,0,0,0,0];
-    [0,0,0,0,0];
-    ]; % * 120 
-schedule.schedule_testing_repeat = 120;
+    ]; % thesis : 192 trials----> 3 trial set * 64 
+schedule.schedule_testing_repeat = 64;
 schedule.schedule_testing_N = size(schedule.schedule_testing,1) * schedule.schedule_testing_repeat;
 
 %% Linear Transformation Parameter
