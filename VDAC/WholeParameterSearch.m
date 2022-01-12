@@ -7,18 +7,18 @@ addpath('..');
 addpath('../helper_function');
 addpath('./experiments');
 
-mode = 'alpha';
+mode = 'V';
 num_repeat = 200;
 
 CC.high = [231,124,141]./255;
 CC.low = [94,165,197]./255;
 
 %% Load Experiment
-% exp = 'Anderson_2011';
-% exp = 'Anderson_Halpern_2017';
-% exp = 'Cho_Cho_Exp1_2021';
+%exp = 'Anderson_2011';
+exp = 'Anderson_Halpern_2017';
+%exp = 'Cho_Cho_Exp1_2021';
 % exp = 'Anderson_2016';
-% exp = 'Mine_Saiki_2017';
+%exp = 'Mine_Saiki_2017';
 eval(exp);
 
 %% Local Optimizer Options
