@@ -7,17 +7,17 @@ addpath('..');
 addpath('../helper_function');
 addpath('./experiments');
 
-mode = 'V';
+mode = 'alpha';
 num_repeat = 200;
 
-CC.high = [231,124,141]./255;
-CC.low = [94,165,197]./255;
+CC.high = [231,124,141]./255; % stimulus condition where the RT should be longer than the low condition
+CC.low = [94,165,197]./255; % stimulus condition where the RT should be shorter than the high condition
 
 %% Load Experiment
 %exp = 'Anderson_2011';
-exp = 'Anderson_Halpern_2017';
+%exp = 'Anderson_Halpern_2017';
 %exp = 'Cho_Cho_Exp1_2021';
-% exp = 'Anderson_2016';
+exp = 'Anderson_2016';
 %exp = 'Mine_Saiki_2017';
 eval(exp);
 
@@ -63,7 +63,7 @@ for model = models
 
     b = [0,opt_option.(model).b]'; 
     %% Optimization Model
-    fitfunction = @(X) evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd, mode);
+    fitfunction = @(X) evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, 3, Exp_low_mean, 3, mode);
 
     %% Global Optimizer Options
     problem = createOptimProblem('fmincon',...
