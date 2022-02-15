@@ -7,7 +7,7 @@ addpath('..');
 addpath('../helper_function');
 addpath('./experiments');
 
-mode = 'alpha';
+mode = 'V';
 num_repeat = 200;
 
 CC.high = [231,124,141]./255; % stimulus condition where the RT should be longer than the low condition
@@ -17,8 +17,8 @@ CC.low = [94,165,197]./255; % stimulus condition where the RT should be shorter 
 %exp = 'Anderson_2011';
 %exp = 'Anderson_Halpern_2017';
 %exp = 'Cho_Cho_Exp1_2021';
-exp = 'Anderson_2016';
-%exp = 'Mine_Saiki_2017';
+%exp = 'Anderson_2016';
+exp = 'Mine_Saiki_2017';
 eval(exp);
 
 %% Local Optimizer Options
@@ -94,8 +94,13 @@ for model = models
     [likelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low] = fitfunction(output_result.(model).x);
     fig = figure('name', model, 'Position', [200, 120, 1200, 800]);
     ax1 = subplot(2,4,1:3);
-    [~,plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
-    [~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
+    if strcmp(mode, 'V')
+        [~,plot_1] = plot_shade(ax1, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
+        [~,plot_2] = plot_shade(ax1, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
+    elseif strcmp(mode, 'alpha')
+        [~,plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
+        [~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
+    end
     ylim([0,1]);
     legend([plot_1{1}, plot_2{1}], {'high reward', 'low reward'});
     
