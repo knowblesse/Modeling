@@ -37,20 +37,20 @@ ExperimentResult.LowDistractor.Distribution = normpdf(linspace(X(1), X(2), 30), 
 ExperimentResult.NPDistractor.Distribution = normpdf(linspace(X(1), X(2), 30), ExperimentData.NPDistractor.Mean, ExperimentData.NPDistractor.SD);
 
 if strcmp(mode, 'V')
-    SimulationResult.HighDistractor = histcounts(V(:,1,:),linspace(0,1,numBinModel + 1))/numel(V(:,1,:));
-    SimulationResult.LowDistractor = histcounts(V(:,2,:),linspace(0,1,numBinModel + 1))/numel(V(:,2,:));
-    SimulationResult.NPDistractor = histcounts(V(:,3,:),linspace(0,1,numBinModel + 1))/numel(V(:,3,:));
+    SimulationResult.HighDistractor.Distribution = histcounts(V(:,1,:),linspace(0,1,numBinModel + 1))/numel(V(:,1,:));
+    SimulationResult.LowDistractor.Distribution = histcounts(V(:,2,:),linspace(0,1,numBinModel + 1))/numel(V(:,2,:));
+    SimulationResult.NPDistractor.Distribution = histcounts(V(:,3,:),linspace(0,1,numBinModel + 1))/numel(V(:,3,:));
 elseif strcmp(mode, 'alpha')
-    SimulationResult.HighDistractor = histcounts(alpha(:,1,:),linspace(0,1,numBinModel + 1))/numel(alpha(:,1,:));
-    SimulationResult.LowDistractor = histcounts(alpha(:,2,:),linspace(0,1,numBinModel + 1))/numel(alpha(:,2,:));
-    SimulationResult.NPDistractor = histcounts(alpha(:,3,:),linspace(0,1,numBinModel + 1))/numel(alpha(:,3,:));
+    SimulationResult.HighDistractor.Distribution = histcounts(alpha(:,1,:),linspace(0,1,numBinModel + 1))/numel(alpha(:,1,:));
+    SimulationResult.LowDistractor.Distribution = histcounts(alpha(:,2,:),linspace(0,1,numBinModel + 1))/numel(alpha(:,2,:));
+    SimulationResult.NPDistractor.Distribution = histcounts(alpha(:,3,:),linspace(0,1,numBinModel + 1))/numel(alpha(:,3,:));
 else
     error('wrong mode');
 end
 
 likelihood = - (...
-    ExperimentResult.HighDistractor.Distribution * SimulationResult.HighDistractor' + ...
-    ExperimentResult.LowDistractor.Distribution * SimulationResult.LowDistractor' + ...
-    ExperimentResult.NPDistractor.Distribution * SimulationResult.NPDistractor' ... 
+    ExperimentResult.HighDistractor.Distribution * SimulationResult.HighDistractor.Distribution' + ...
+    ExperimentResult.LowDistractor.Distribution * SimulationResult.LowDistractor.Distribution' + ...
+    ExperimentResult.NPDistractor.Distribution * SimulationResult.NPDistractor.Distribution' ... 
     );
 end

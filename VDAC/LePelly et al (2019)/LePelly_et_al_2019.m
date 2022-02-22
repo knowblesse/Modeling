@@ -40,14 +40,8 @@ schedule.schedule{2} = repmat([...
     ],8,1); % 36 trials x 8 blocks
 schedule.N = 36*5 + 36*8;
 
-%% Linear Transformation Parameter
-% experiment specific range for matching V to RT or score difference from the experiment
-fitLowerbound = [-40, -40];
-fitUpperbound = [+40, +40];
-x0 = [0, 30]; % rule of thumb 
-
 %% parameters
-mode = 'V';
+mode = 'alpha';
 num_repeat = 200;
 
 CC.high = [231,124,141]./255; % stimulus condition where the RT should be longer than the low condition
@@ -72,6 +66,12 @@ for model = models
     tic;
     %% Load Parameters
     [param, opt_option] = getDefaultParam();
+    
+    %% Linear Transformation Parameter
+    % experiment specific range for matching V to RT or score difference from the experiment
+    fitLowerbound = [-40, -40];
+    fitUpperbound = [+40, +40];
+    x0 = [0, 30]; % rule of thumb 
     
     %% Setup initial parameters and ranges of the parameter for optimization
     model = model{1};
@@ -137,18 +137,20 @@ for model = models
     legend([plot_1{1}, plot_2{1}, plot_3{1}], {'high reward distractor', 'low reward distractor', 'np distractor'});
     
     ax2 = subplot(2,4,4);
-    bar((1:30)-0.5*2/3, ExperimentResult.HighDistractor.Distribution, 'FaceColor', CC.high, 'BarWidth',0.3);
+    bar((1:30)-0.5*2/3, SimulationResult.HighDistractor.Distribution, 'FaceColor', CC.high, 'BarWidth',0.3);
     hold on;
-    bar((1:30), ExperimentResult.LowDistractor.Distribution, 'FaceColor', CC.low, 'BarWidth',0.3);
-    bar((1:30)+0.5*2/3, ExperimentResult.NPDistractor.Distribution, 'FaceColor', CC.np, 'BarWidth', 0.3);
+    bar((1:30), SimulationResult.LowDistractor.Distribution, 'FaceColor', CC.low, 'BarWidth',0.3);
+    bar((1:30)+0.5*2/3, SimulationResult.NPDistractor.Distribution, 'FaceColor', CC.np, 'BarWidth', 0.3);
     ax2.View = [90, -90];
     
     ax3 = subplot(2,4,5:6);
     hold on;
-    bar((1:30)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
-    bar((1:30)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
-    plot(Exp_high, 'Color', CC.high);
-    plot(Exp_low, 'Color', CC.low);
+    bar((1:30)-0.5*2/3, SimulationResult.HighDistractor.Distribution, 'FaceColor', CC.high, 'BarWidth',0.5);
+    bar((1:30), SimulationResult.LowDistractor.Distribution, 'FaceColor', CC.low, 'BarWidth',0.5);
+    bar((1:30)+0.5*2/3, SimulationResult.NPDistractor.Distribution, 'FaceColor', CC.np, 'BarWidth',0.5);
+    plot(ExperimentResult.HighDistractor.Distribution, 'Color', CC.high);
+    plot(ExperimentResult.LowDistractor.Distribution, 'Color', CC.low);
+    plot(ExperimentResult.NPDistractor.Distribution, 'Color', CC.np);
     
     ax4 = subplot(2,4,7:8);
     cla;
@@ -158,7 +160,7 @@ for model = models
     text(0.05, 0.6, strcat("Parameters : ", num2str(output_result.(model).x(1)), " ", num2str(output_result.(model).x(2))), 'FontSize', 20);
     text(0.05, 0.4, num2str(output_result.(model).x(3:end), ' %.2f'), 'FontSize', 15);
     
-    savefig(fig,strcat(model,'_',exp,'_',mode,'_result.fig'));
+    savefig(fig,strcat(model,'_LePelly_et_al_2019_',mode,'_result.fig'));
 end
-save(strcat(exp,'_',mode,'_result.mat'),'output_result');
+save(strcat('LePelly_et_al_2019_',mode,'_result.mat'),'output_result');
 
