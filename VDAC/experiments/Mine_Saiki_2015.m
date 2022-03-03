@@ -1,5 +1,5 @@
-%% Mine_Saiki_2017
-% Mine & Saiki 2017 simulation
+%% Mine_Saiki_2015
+% Mine & Saiki 2015 simulation
 % Exp2
 
 %% Experiment Data

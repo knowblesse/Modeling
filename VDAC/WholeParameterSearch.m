@@ -18,7 +18,7 @@ CC.low = [94,165,197]./255; % stimulus condition where the RT should be shorter 
 %exp = 'Anderson_Halpern_2017';
 %exp = 'Cho_Cho_Exp1_2021';
 %exp = 'Anderson_2016';
-exp = 'Mine_Saiki_2017';
+exp = 'Mine_Saiki_2015';
 eval(exp);
 
 %% Local Optimizer Options
