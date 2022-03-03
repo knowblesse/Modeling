@@ -10,7 +10,7 @@ for i = 1 : length(filenames)
         model_name = fig_data.model;
         fig_data = regexp(fn,'(\d){4}_(?<var>\w*?)_result.fig','names');
         var_name = fig_data.var;
-        fig2 = figure('Position',[98,509,1181,458]);
+        fig2 = figure('Position',[98,509,981,358]);
         fig.Children(end).Parent = fig2;
         subplot(1,4,1:3,fig2.Children(2));
         fig.Children(end).Parent = fig2;
