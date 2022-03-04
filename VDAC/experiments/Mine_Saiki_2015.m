@@ -38,9 +38,3 @@ schedule.schedule_testing = [...
     ]; % thesis : 192 trials----> 3 trial set * 64 
 schedule.schedule_testing_repeat = 64;
 schedule.schedule_testing_N = size(schedule.schedule_testing,1) * schedule.schedule_testing_repeat;
-
-%% Linear Transformation Parameter
-% experiment specific range for matching V to RT or score difference from the experiment
-ltp_lowerbound = [-40, -40];
-ltp_upperbound = [+40, +40];
-ltp_x0 = [0, 30]; % rule of thumb 
