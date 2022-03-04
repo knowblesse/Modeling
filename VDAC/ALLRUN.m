@@ -39,9 +39,9 @@ for model = models
     [param, opt_option] = getDefaultParam();
     
     %% Setup initial parameters and ranges of the parameter for optimization
-    fitLowerbound = ltp_lowerbound;
-    fitUpperbound = ltp_upperbound;
-    x0 = ltp_x0;
+    fitLowerbound = [0, 0];
+    fitUpperbound = [40, 20];
+    x0 = [20, 5];
     model = model{1};
     modelParam = eval(strcat('param.',model));
     fnames = fieldnames(modelParam);
@@ -54,12 +54,10 @@ for model = models
     end
     
     %% Setup Constraints
-    A_temp = opt_option.(model).A;
-    A = zeros(1 + size(A_temp,1), 2 + size(A_temp,2));
-    A(1,1:2) = [1,-1];
-    A(2:end,3:end) = A_temp;
+    % no constraints for the linear transformation factors
+    A = [zeros(size(opt_option.(model).A,1),2), opt_option.(model).A];
+    b = [opt_option.(model).b]'; 
 
-    b = [0,opt_option.(model).b]'; 
     %% Optimization Model
     fitfunction = @(X) evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, 3, Exp_low_mean, 3, mode);
 
@@ -72,7 +70,6 @@ for model = models
             'lb', fitLowerbound,...
             'ub', fitUpperbound,...
             'options', opts);
-    %gs = GlobalSearch('MaxTime',180);
     ms = MultiStart('MaxTime', 180, 'UseParallel', true);
     
     %[x, fval, ~, output_result.(model).output, output_result.(model).solutions] = run(gs, problem);
@@ -89,7 +86,8 @@ for model = models
     fprintf('Time : %d sec \n',floor(toc))
 
     %% Draw Result
-    [likelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low] = fitfunction(output_result.(model).x);
+    [likelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low, Model_element_number] = fitfunction(output_result.(model).x);
+    output_result.(model).Model_element_number = Model_element_number;
     fig = figure('name', model, 'Position', [200, 120, 1200, 800]);
     ax1 = subplot(2,4,1:3);
     if strcmp(mode, 'V')
@@ -118,11 +116,13 @@ for model = models
     ax4 = subplot(2,4,7:8);
     cla;
     axis off;
-    text(0.05, 1, strcat("Model : ", model), 'FontSize', 20);
-    text(0.05, 0.8, strcat("Negative Log-Likelihood : ", num2str(output_result.(model).fval)), 'FontSize', 20);
-    text(0.05, 0.6, strcat("Parameters : ", num2str(output_result.(model).x(1)), " ", num2str(output_result.(model).x(2))), 'FontSize', 20);
-    text(0.05, 0.4, num2str(output_result.(model).x(3:end), ' %.2f'), 'FontSize', 15);
-    
+    text(0.05, 1, strcat("Model : ", model), 'FontSize', 18);
+    text(0.05, 0.8, strcat("Negative Log-Likelihood : ", num2str(output_result.(model).fval)), 'FontSize', 18);
+    text(0.05, 0.6, "Parameters : ", 'FontSize', 20);
+    text(0.05, 0.45, strcat("a : ", num2str(output_result.(model).x(1)), " b : ", num2str(output_result.(model).x(2))), 'FontSize', 15);
+    for ip = 1 : numel(fieldnames(modelParam))
+        text(0.05, 0.45-(0.1*ip), strcat(fnames{ip}, " : ", num2str(output_result.(model).x(ip+2), ' %.3f')), 'FontSize', 15);
+    end
     savefig(fig,strcat(model,'_',exp,'_',mode,'_result.fig'));
 end
 save(strcat(exp,'_',mode,'_result.mat'),'output_result');

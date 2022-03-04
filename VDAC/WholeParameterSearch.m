@@ -88,7 +88,8 @@ for model = models
     fprintf('Time : %d sec \n',floor(toc))
 
     %% Draw Result
-    [likelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low] = fitfunction(output_result.(model).x);
+    [likelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low, Model_element_number] = fitfunction(output_result.(model).x);
+    output_result.(model).Model_element_number = Model_element_number;
     fig = figure('name', model, 'Position', [200, 120, 1200, 800]);
     ax1 = subplot(2,4,1:3);
     if strcmp(mode, 'V')

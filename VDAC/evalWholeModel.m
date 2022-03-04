@@ -1,4 +1,4 @@
-function [negativeloglikelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low] = evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd, mode)
+function [negativeloglikelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low, Model_element_number] = evalWholeModel(X, schedule, model, num_repeat, Exp_high_mean, Exp_high_sd, Exp_low_mean, Exp_low_sd, mode)
 %% evalWholeModel
 % Generate Experiment and Model Distribution and calculate negative log likelihood. 
 % Param 
@@ -49,8 +49,9 @@ else
     error('wrong mode');
 end
 
-Model_high = histcounts(Model_high_result,linspace(0,1,numBinModel + 1))/(num_repeat * schedule_testing_N);
-Model_low  = histcounts(Model_low_result,linspace(0,1,numBinModel + 1))/(num_repeat * schedule_testing_N);
+Model_element_number = (num_repeat * schedule_testing_N);
+Model_high = histcounts(Model_high_result,linspace(0,1,numBinModel + 1))/Model_element_number;
+Model_low  = histcounts(Model_low_result,linspace(0,1,numBinModel + 1))/Model_element_number;
 
 %% Calculate Negative Log Likelihood
 negativeloglikelihood = -(...
