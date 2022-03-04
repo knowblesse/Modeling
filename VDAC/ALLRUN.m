@@ -39,8 +39,8 @@ for model = models
     [param, opt_option] = getDefaultParam();
     
     %% Setup initial parameters and ranges of the parameter for optimization
-    fitLowerbound = [0, 0];
-    fitUpperbound = [40, 20];
+    fitLowerbound = [0, -30];
+    fitUpperbound = [50, 30];
     x0 = [20, 5];
     model = model{1};
     modelParam = eval(strcat('param.',model));
