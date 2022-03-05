@@ -39,9 +39,9 @@ for model = models
     [param, opt_option] = getDefaultParam();
     
     %% Setup initial parameters and ranges of the parameter for optimization
-    fitLowerbound = [0, -30];
-    fitUpperbound = [50, 30];
-    x0 = [20, 5];
+    fitLowerbound = [1, -1];
+    fitUpperbound = [100, 1];
+    x0 = [20, 0];
     model = model{1};
     modelParam = eval(strcat('param.',model));
     fnames = fieldnames(modelParam);
@@ -70,7 +70,7 @@ for model = models
             'lb', fitLowerbound,...
             'ub', fitUpperbound,...
             'options', opts);
-    ms = MultiStart('MaxTime', 180, 'UseParallel', true);
+    ms = MultiStart('MaxTime', 600, 'UseParallel', true);
     
     %[x, fval, ~, output_result.(model).output, output_result.(model).solutions] = run(gs, problem);
     [output_result.(model).x, output_result.(model).fval, ~, output_result.(model).output, output_result.(model).solutions] = run(ms, problem, 12*5);
@@ -101,15 +101,15 @@ for model = models
     legend([plot_1{1}, plot_2{1}], {'high reward', 'low reward'});
     
     ax2 = subplot(2,4,4);
-    bar((1:30)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
+    bar((1:50)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
     hold on;
-    bar((1:30)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
+    bar((1:50)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
     ax2.View = [90, -90];
     
     ax3 = subplot(2,4,5:6);
     hold on;
-    bar((1:30)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
-    bar((1:30)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
+    bar((1:50)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
+    bar((1:50)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
     plot(Exp_high, 'Color', CC.high);
     plot(Exp_low, 'Color', CC.low);
     
@@ -123,8 +123,8 @@ for model = models
     for ip = 1 : numel(fieldnames(modelParam))
         text(0.05, 0.45-(0.1*ip), strcat(fnames{ip}, " : ", num2str(output_result.(model).x(ip+2), ' %.3f')), 'FontSize', 15);
     end
-    savefig(fig,strcat(model,'_',exp,'_',mode,'_result.fig'));
+    savefig(fig,strcat('./result_nll', filesep, exp, filesep, mode, filesep, model,'_',exp,'_',mode,'_result.fig'));
 end
-save(strcat(exp,'_',mode,'_result.mat'),'output_result');
+save(strcat('./result_nll', filesep, exp, filesep, mode, filesep, exp,'_',mode,'_result.mat'),'output_result');
 end
 end

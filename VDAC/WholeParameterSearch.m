@@ -41,9 +41,9 @@ for model = models
     [param, opt_option] = getDefaultParam();
     
     %% Setup initial parameters and ranges of the parameter for optimization
-    fitLowerbound = [0, -30];
-    fitUpperbound = [50, 30];
-    x0 = [20, 5];
+    fitLowerbound = [0, -1];
+    fitUpperbound = [100, 1];
+    x0 = [20, 0];
     model = model{1};
     modelParam = eval(strcat('param.',model));
     fnames = fieldnames(modelParam);
@@ -57,7 +57,7 @@ for model = models
     
     %% Setup Constraints
     % no constraints for the linear transformation factors
-    A = [0,0, opt_option.(model).A];
+    A = [zeros(size(opt_option.(model).A,1),2), opt_option.(model).A];
     b = [opt_option.(model).b]'; 
 
     %% Optimization Model
@@ -103,15 +103,15 @@ for model = models
     legend([plot_1{1}, plot_2{1}], {'high reward', 'low reward'});
     
     ax2 = subplot(2,4,4);
-    bar((1:30)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
+    bar((1:50)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
     hold on;
-    bar((1:30)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
+    bar((1:50)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
     ax2.View = [90, -90];
     
     ax3 = subplot(2,4,5:6);
     hold on;
-    bar((1:30)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
-    bar((1:30)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
+    bar((1:50)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5);
+    bar((1:50)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5);
     plot(Exp_high, 'Color', CC.high);
     plot(Exp_low, 'Color', CC.low);
     
