@@ -1,13 +1,12 @@
-function [likelihood, V, alpha, SimulationResult, ExperimentResult] = evalModel(X, schedule, model, num_repeat, ExperimentData, mode)
-% Using the fitting variables, simulate the model and compare with the experiment result
-% The X is the fitting variable
-% The first two X values are for the linear fitting of gaussian distributions
-% Rest of the X values are for the model specific parameters.
+function [negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, value)
+%% computeNLL3
+% Generate Experiment Distribution and calculate negative log likelihood. 
+% Param 
+% X : The first two factors are for the linear transformation of the V or alpha value.
+%     X(1) * (V + X(2)) = Experiment Result factor (ex. RT, accuracy)
 
 %% Parameters
-numBinModel = 30; % number of bins to divide the V or alpha
-
-% Load Parameters from X(3:end) to param
+numBinModel = 50; % number of bins to divide the V or alpha
 param = getDefaultParam();
 fnames = fieldnames(param.(model));
 for fn = 1 : numel(fieldnames(param.(model)))
@@ -33,29 +32,37 @@ end
 
 %% Generate Experiment Distribution
 BlockSeparator = {91:186, 277:372, 463:558, 659:744};
-likelihood = 0;
+negativeloglikelihood = 0;
 for i = 1 : 4
-    ExperimentResult.OldHighDistractor.Distribution{i} = normpdf(linspace(X(1), X(2), 30), ExperimentData.OldHighDistractor.Mean(i), ExperimentData.OldHighDistractor.SD);
-    ExperimentResult.LowDistractor.Distribution{i} = normpdf(linspace(X(1), X(2), 30), ExperimentData.LowDistractor.Mean(i), ExperimentData.LowDistractor.SD);
-    ExperimentResult.NewHighDistractor.Distribution{i} = normpdf(linspace(X(1), X(2), 30), ExperimentData.NewHighDistractor.Mean(i), ExperimentData.NewHighDistractor.SD);
+    % Generate Experiment Distribution
+    ExperimentResult.OldHighDistractor.Distribution{i} = normpdf(X(1)*(linspace(0,1,numBinModel)+X(2)), ExperimentData.OldHighDistractor.Mean(i), ExperimentData.OldHighDistractor.SD);
+    ExperimentResult.LowDistractor.Distribution{i} = normpdf(X(1)*(linspace(0,1,numBinModel)+X(2)), ExperimentData.LowDistractor.Mean(i), ExperimentData.LowDistractor.SD);
+    ExperimentResult.NewHighDistractor.Distribution{i} = normpdf(X(1)*(linspace(0,1,numBinModel)+X(2)), ExperimentData.NewHighDistractor.Mean(i), ExperimentData.NewHighDistractor.SD);
 
-    if strcmp(mode, 'V')
-        SimulationResult.OldHighDistractor.Distribution{i} = histcounts(V(BlockSeparator{i},1,:),linspace(0,1,numBinModel + 1))/numel(V(BlockSeparator{i},1,:));
-        SimulationResult.LowDistractor.Distribution{i} = histcounts(V(BlockSeparator{i},2,:),linspace(0,1,numBinModel + 1))/numel(V(BlockSeparator{i},2,:));
-        SimulationResult.NewHighDistractor.Distribution{i} = histcounts(V(BlockSeparator{i},3,:),linspace(0,1,numBinModel + 1))/numel(V(BlockSeparator{i},3,:));
-    elseif strcmp(mode, 'alpha')
-        SimulationResult.OldHighDistractor.Distribution{i} = histcounts(alpha(BlockSeparator{i},1,:),linspace(0,1,numBinModel + 1))/numel(alpha(BlockSeparator{i},1,:));
-        SimulationResult.LowDistractor.Distribution{i} = histcounts(alpha(BlockSeparator{i},2,:),linspace(0,1,numBinModel + 1))/numel(alpha(BlockSeparator{i},2,:));
-        SimulationResult.NewHighDistractor.Distribution{i} = histcounts(alpha(BlockSeparator{i},3,:),linspace(0,1,numBinModel + 1))/numel(alpha(BlockSeparator{i},3,:));
+    % Concatenate Simulation Result
+    if strcmp(value, 'V')
+        SimulationResult.OldHighDistractor.Result{i} = V(BlockSeparator{i},1,:); 
+        SimulationResult.LowDistractor.Result{i} = V(BlockSeparator{i},2,:); 
+        SimulationResult.NewHighDistractor.Result{i} = V(BlockSeparator{i},3,:); 
+    elseif strcmp(value, 'alpha')
+        SimulationResult.OldHighDistractor.Result{i} = alpha(BlockSpetarator{i},1,:);
+        SimulationResult.LowDistractor.Result{i} = alpha(BlockSpetarator{i},2,:);
+        SimulationResult.NewHighDistractor.Result{i} = alpha(BlockSpetarator{i},3,:);
     else
         error('wrong mode');
     end
 
-    % Calculate the likelihood
-    likelihood = likelihood - (...
-        ExperimentResult.OldHighDistractor.Distribution{i} * SimulationResult.OldHighDistractor.Distribution{i}' + ...
-        ExperimentResult.LowDistractor.Distribution{i} * SimulationResult.LowDistractor.Distribution{i}' + ...    
-        ExperimentResult.NewHighDistractor.Distribution{i} * SimulationResult.NewHighDistractor.Distribution{i}');
-        
+    %Generate Simulation Distribution
+    Model_element_number = (schedule.N * num_repeat);
+    SimulationResult.OldHighDistractor.Distribution{i} = histcounts(SimulationResult.OldHighDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})i*num_repeat);
+    SimulationResult.LowDistractor.Distribution{i} = histcounts(SimulationResult.LowDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})i*num_repeat);
+    SimulationResult.NewHighDistractor.Distribution{i} = histcounts(SimulationResult.NewHighDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})i*num_repeat);
+
+    %% Calculate Negative Log Likelihood
+    negativeloglikelihood = negativeloglikelihood - (...
+        sum(log(normpdf(X(1)*(reshape(SimulationResult.OldHighDistractor.Result, [], 1)+X(2)), ExperimentData.OldHighDistractor.Mean(i), ExperimentData.NewHighDistractor.SD))) + ...
+        sum(log(normpdf(X(1)*(reshape(SimulationResult.LowDistractor.Result, [], 1)+X(2)), ExperimentData.LowDistractor.Mean(i), ExperimentData.LowDistractor.SD))) + ...
+        sum(log(normpdf(X(1)*(reshape(SimulationResult.NewHighDistractor.Result, [], 1)+X(2)), ExperimentData.NewHighDistractor.Mean(i), ExperimentData.NewHighDistractor.SD))) + ...
+        );
 end
 end

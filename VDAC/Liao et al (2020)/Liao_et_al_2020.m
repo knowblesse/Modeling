@@ -8,10 +8,10 @@ addpath('../../');
 % all mean RT values are subtracted from RT of corresponding neutral condition
 ExperimentData.OldHighDistractor.Mean = [0.178, 6.320, 19.496, 2.849];
 ExperimentData.OldHighDistractor.SD = 3;
-ExperimentData.NewHighDistractor.Mean = [0.445, -1.424, -0.712, 13.086]; 
-ExperimentData.NewHighDistractor.SD = 3;
 ExperimentData.LowDistractor.Mean = [-10.415, -6.588, -9.436, 6.142]; 
 ExperimentData.LowDistractor.SD = 3;
+ExperimentData.NewHighDistractor.Mean = [0.445, -1.424, -0.712, 13.086]; 
+ExperimentData.NewHighDistractor.SD = 3;
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+
@@ -65,8 +65,8 @@ mode = 'alpha';
 num_repeat = 200;
 
 CC.oldhigh = [231,124,141]./255; % initially high reward - later no reward
+CC.low = [0,0,0]; % low reward 
 CC.newhigh = [94,165,197]./255; % initially no reward - later high reward
-CC.low = [0,0,0]; % low reward
 
 %% Local Optimizer Options
 opts = optimoptions('fmincon',...
