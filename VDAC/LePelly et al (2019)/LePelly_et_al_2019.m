@@ -64,7 +64,6 @@ opts = optimoptions('fmincon',...
     'FiniteDifferenceStepSize', 1e-2); % 1e-2 was the best
 
 %% Run Through Models
-models = {'RW', 'M', 'SPH', 'EH'};
 output_result = struct();
 for model = models
     tic;
@@ -103,7 +102,6 @@ for model = models
             'lb', fitLowerbound,...
             'ub', fitUpperbound,...
             'options', opts);
-    %gs = GlobalSearch('MaxTime',180);
     ms = MultiStart('MaxTime', 600, 'UseParallel', true);
     
     [output_result.(model).x, output_result.(model).fval, ~, output_result.(model).output, output_result.(model).solutions] = run(ms, problem, 12*5);

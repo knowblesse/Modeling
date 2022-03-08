@@ -45,24 +45,24 @@ for i = 1 : 4
         SimulationResult.LowDistractor.Result{i} = V(BlockSeparator{i},2,:); 
         SimulationResult.NewHighDistractor.Result{i} = V(BlockSeparator{i},3,:); 
     elseif strcmp(value, 'alpha')
-        SimulationResult.OldHighDistractor.Result{i} = alpha(BlockSpetarator{i},1,:);
-        SimulationResult.LowDistractor.Result{i} = alpha(BlockSpetarator{i},2,:);
-        SimulationResult.NewHighDistractor.Result{i} = alpha(BlockSpetarator{i},3,:);
+        SimulationResult.OldHighDistractor.Result{i} = alpha(BlockSeparator{i},1,:);
+        SimulationResult.LowDistractor.Result{i} = alpha(BlockSeparator{i},2,:);
+        SimulationResult.NewHighDistractor.Result{i} = alpha(BlockSeparator{i},3,:);
     else
         error('wrong mode');
     end
 
     %Generate Simulation Distribution
     Model_element_number = (schedule.N * num_repeat);
-    SimulationResult.OldHighDistractor.Distribution{i} = histcounts(SimulationResult.OldHighDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})i*num_repeat);
-    SimulationResult.LowDistractor.Distribution{i} = histcounts(SimulationResult.LowDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})i*num_repeat);
-    SimulationResult.NewHighDistractor.Distribution{i} = histcounts(SimulationResult.NewHighDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})i*num_repeat);
+    SimulationResult.OldHighDistractor.Distribution{i} = histcounts(SimulationResult.OldHighDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})*num_repeat);
+    SimulationResult.LowDistractor.Distribution{i} = histcounts(SimulationResult.LowDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})*num_repeat);
+    SimulationResult.NewHighDistractor.Distribution{i} = histcounts(SimulationResult.NewHighDistractor.Result{i}, linspace(0,1,numBinModel + 1))/(numel(BlockSeparator{i})*num_repeat);
 
     %% Calculate Negative Log Likelihood
     negativeloglikelihood = negativeloglikelihood - (...
-        sum(log(normpdf(X(1)*(reshape(SimulationResult.OldHighDistractor.Result, [], 1)+X(2)), ExperimentData.OldHighDistractor.Mean(i), ExperimentData.NewHighDistractor.SD))) + ...
-        sum(log(normpdf(X(1)*(reshape(SimulationResult.LowDistractor.Result, [], 1)+X(2)), ExperimentData.LowDistractor.Mean(i), ExperimentData.LowDistractor.SD))) + ...
-        sum(log(normpdf(X(1)*(reshape(SimulationResult.NewHighDistractor.Result, [], 1)+X(2)), ExperimentData.NewHighDistractor.Mean(i), ExperimentData.NewHighDistractor.SD))) + ...
+        sum(log(normpdf(X(1)*(reshape(SimulationResult.OldHighDistractor.Result{i}, [], 1)+X(2)), ExperimentData.OldHighDistractor.Mean(i), ExperimentData.NewHighDistractor.SD))) + ...
+        sum(log(normpdf(X(1)*(reshape(SimulationResult.LowDistractor.Result{i}, [], 1)+X(2)), ExperimentData.LowDistractor.Mean(i), ExperimentData.LowDistractor.SD))) + ...
+        sum(log(normpdf(X(1)*(reshape(SimulationResult.NewHighDistractor.Result{i}, [], 1)+X(2)), ExperimentData.NewHighDistractor.Mean(i), ExperimentData.NewHighDistractor.SD))) ...
         );
 end
 end
