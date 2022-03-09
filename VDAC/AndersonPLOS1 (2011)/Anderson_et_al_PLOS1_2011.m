@@ -1,31 +1,44 @@
-function mlParameterSearch2(experiment, value, models) 
-%% mlParameterSearch2 : maximum likelihood parameter search function
-% Load the experiment data (exp) and run MultiStart optimization function to find parameters
-% that make the lowest negative log-likelihood (= the maximum log-likelihood)
-% This functions draws on two conditions
-% Param
-%   experiment : str : name of the experiment script
-%   value : str : either 'V' or 'alph'             
-%   models : cell : model lists. ex. {'RW', 'M'}
-% 22 MAR 07
-% 2022 Knowblesse
+%% Anderson_et_al_PLOS1_2011
+% Simulation Code for Anderson et al. (2011) in PLOS 1
+experiment = 'Anderson_et_al_PLOS1_2011';
+value = 'V';
+models = {'RW', 'M', 'SPH', 'EH'};
+
+rng('shuffle');
+addpath('../../helper_function');
+addpath('../../');
+
+%% Experiment Data
+% all mean RT values are subtracted from RT of corresponding neutral condition
+ExperimentData.HighDistractor.Mean = [0.178, 6.320, 19.496, 2.849];
+ExperimentData.HighDistractor.SD = 3;
+ExperimentData.LowDistractor.Mean = [-10.415, -6.588, -9.436, 6.142]; 
+ExperimentData.LowDistractor.SD = 3;
+
+%% Experiment Schedule
+% +--------+--------+--------+--------+---------------------------+
+% | CS1    | CS2    | CS3    | US     | US intensity(reward size) |
+% +--------+--------+--------+--------+---------------------------+
+% | 1 or 0 | 1 or 0 | 1 or 0 | 1 or 0 | float                     |
+% +--------+--------+--------+--------+---------------------------+
+high_reward = 1; %5 cents
+low_reward = 0.2; %1 cents
+
+schedule = struct();
+%-------------------- Block 1 Training ---------------------------%
+schedule.schedule = repmat([...
+    repmat([1,0,0,1,high_reward],4,1);... % High : 80% high
+    repmat([1,0,0,1,low_reward],1,1);... % High : 20% low
+    repmat([0,1,0,1,high_reward],1,1);... % Low : 20% high
+    repmat([0,1,0,1,low_reward],4,1);... % Low : 80% low
+    ],100,1); % thesis : 1008 trials. simulation : 10 trials x 100 blocks = 1000 trials
+schedule.N = 1000;
 
 %% parameters
-rng('shuffle');
-addpath('..');
-addpath('../helper_function');
-addpath('./experiments');
-
 num_repeat = 200;
 
-CC.high = [231,124,141]./255; % stimulus condition where the RT should be longer than the low condition
-CC.low = [94,165,197]./255; % stimulus condition where the RT should be shorter than the high condition
-
-%% Load Experiment
-if iscell(experiment)
-    experiment = experiment{1};
-end
-eval(experiment);
+CC.high = [231,124,141]./255;
+CC.low = [94,165,197]./255;
 
 %% Local Optimizer Options
 opts = optimoptions('fmincon',...
@@ -45,10 +58,13 @@ for model = models
     %% Load Parameters
     [param, opt_option] = getDefaultParam();
     
-    %% Setup initial parameters and ranges of the parameter for optimization
+    %% Linear Transformation Parameter
+    % experiment specific range for matching V to RT or score difference from the experiment
     fitLowerbound = [0, -1];
-    fitUpperbound = [100, 1];
-    x0 = [20, 0];
+    fitUpperbound = [100, 10];
+    x0 = [20, 1]; % rule of thumb 
+    
+    %% Setup initial parameters and ranges of the parameter for optimization
     model = model{1};
     modelParam = eval(strcat('param.',model));
     fnames = fieldnames(modelParam);
@@ -63,10 +79,10 @@ for model = models
     %% Setup Constraints
     % no constraints for the linear transformation factors
     A = [zeros(size(opt_option.(model).A,1),2), opt_option.(model).A];
-    b = [opt_option.(model).b]'; 
-
+    b = [opt_option.(model).b]';
+    
     %% Optimization Model
-    fitfunction = @(X) computeNLL(X, schedule, model, num_repeat, Exp_high_mean, 3, Exp_low_mean, 3, value);
+    fitfunction = @(X) computeNLL3(X, schedule, model, num_repeat, ExperimentData, value);
 
     %% Global Optimizer Options
     problem = createOptimProblem('fmincon',...
@@ -92,10 +108,9 @@ for model = models
     fprintf('Time : %d sec \n',floor(toc))
 
     %% Draw Result
-    [negativeloglikelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low, Model_element_number] = fitfunction(output_result.(model).x);
-    output_result.(model).Model_element_number = Model_element_number;
-    fig = figure('name', model, 'Position', [200, 120, 1200, 800]);
-    ax1 = subplot(2,4,1:3);
+    [likelihood, V, alpha, SimulationResult, ExperimentResult] = fitfunction(output_result.(model).x);
+    fig = figure('name', model, 'Position', [98,509,981,358]);
+    ax1 = subplot(2,10,1:10);
     if strcmp(value, 'V')
         [~,plot_1] = plot_shade(ax1, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
         [~,plot_2] = plot_shade(ax1, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
@@ -104,31 +119,18 @@ for model = models
         [~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
     end
     ylim([0,1]);
+    xlim([0, schedule.N]);
     legend([plot_1{1}, plot_2{1}], {'high reward', 'low reward'});
     
-    ax2 = subplot(2,4,4);
-    bar((1:50)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5, 'EdgeAlpha', 0);
-    hold on;
-    bar((1:50)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5, 'EdgeAlpha', 0);
-    ax2.View = [90, -90];
-    
-    ax3 = subplot(2,4,5:6);
-    hold on;
-    bar((1:50)-0.25, Model_high, 'FaceColor', CC.high, 'BarWidth',0.5, 'EdgeAlpha', 0);
-    bar((1:50)+0.25, Model_low, 'FaceColor', CC.low, 'BarWidth', 0.5, 'EdgeAlpha', 0);
-    plot(Exp_high, 'Color', CC.high);
-    plot(Exp_low, 'Color', CC.low);
-    
-    ax4 = subplot(2,4,7:8);
-    cla;
-    axis off;
-    text(0.05, 1, strcat("Model : ", model), 'FontSize', 18);
-    text(0.05, 0.8, strcat("Negative Log-Likelihood : ", num2str(output_result.(model).fval)), 'FontSize', 18);
-    text(0.05, 0.6, "Parameters : ", 'FontSize', 20);
-    text(0.05, 0.45, strcat("a : ", num2str(output_result.(model).x(1)), " b : ", num2str(output_result.(model).x(2))), 'FontSize', 15);
-    for ip = 1 : numel(fieldnames(modelParam))
-        text(0.05, 0.45-(0.1*ip), strcat(fnames{ip}, " : ", num2str(output_result.(model).x(ip+2), ' %.3f')), 'FontSize', 15);
+    for i = 1 : 10
+        subplot(2,10,4+i);
+        title(strcat("Block ", num2str(i)));
+        hold on;
+        bar((1:50)-0.25, SimulationResult.HighDistractor.Distribution{i}, 'FaceColor', CC.high, 'BarWidth',0.5, 'EdgeAlpha', 0);
+        bar((1:50)+0.25, SimulationResult.LowDistractor.Distribution{i}, 'FaceColor', CC.low, 'BarWidth',0.5, 'EdgeAlpha', 0);
+        plot(ExperimentResult.HighDistractor.Distribution{i}, 'Color', CC.high);
+        plot(ExperimentResult.LowDistractor.Distribution{i}, 'Color', CC.low);
     end
-    savefig(fig,strcat('./result_nll', filesep, experiment, filesep, value, filesep, model,'_',experiment,'_',value,'_result.fig'));
+    savefig(fig,strcat('../result_nll', filesep, experiment, filesep, value, filesep, model,'_',experiment,'_',value,'_result.fig'));
 end
-save(strcat('./result_nll', filesep, experiment, filesep, value, filesep, experiment,'_',value,'_result.mat'),'output_result');
+save(strcat('../result_nll', filesep, experiment, filesep, value, filesep, experiment,'_',value,'_result.mat'),'output_result');
