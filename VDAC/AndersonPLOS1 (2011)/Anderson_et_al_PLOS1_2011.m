@@ -1,7 +1,7 @@
 %% Anderson_et_al_PLOS1_2011
 % Simulation Code for Anderson et al. (2011) in PLOS 1
 experiment = 'Anderson_et_al_PLOS1_2011';
-value = 'V';
+value = 'alpha';
 models = {'RW', 'M', 'SPH', 'EH'};
 
 rng('shuffle');
@@ -10,10 +10,15 @@ addpath('../../');
 
 %% Experiment Data
 % all mean RT values are subtracted from RT of corresponding neutral condition
-ExperimentData.HighDistractor.Mean = [0.178, 6.320, 19.496, 2.849];
-ExperimentData.HighDistractor.SD = 3;
-ExperimentData.LowDistractor.Mean = [-10.415, -6.588, -9.436, 6.142]; 
-ExperimentData.LowDistractor.SD = 3;
+ExperimentData.HighTarget.Mean = [472.3591555, 460.3282374, 450.873717, 452.5483446, 453.5270914, 456.0775211, 457.1595216, 456.5928625, 451.4403761, 455.6654335];
+ExperimentData.HighTarget.SD = 3;
+ExperimentData.LowTarget.Mean = [477.7434991, 464.4243821, 459.9934355, 461.3329521, 456.9020055, 457.5459504, 455.0728064, 458.1642364, 456.4899179, 454.5318061];
+ExperimentData.LowTarget.SD = 3;
+
+% Since the lower RT indicates more attention allocation (i.e. higher V value) in this study, 
+% I used mean values below.
+ExperimentData.HighTarget.Mean = ExperimentData.LowTarget.Mean(1) - ExperimentData.HighTarget.Mean;
+ExperimentData.LowTarget.Mean = ExperimentData.LowTarget.Mean(1) - ExperimentData.LowTarget.Mean;
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+
@@ -82,7 +87,7 @@ for model = models
     b = [opt_option.(model).b]';
     
     %% Optimization Model
-    fitfunction = @(X) computeNLL3(X, schedule, model, num_repeat, ExperimentData, value);
+    fitfunction = @(X) computeNLL2(X, schedule, model, num_repeat, ExperimentData, value);
 
     %% Global Optimizer Options
     problem = createOptimProblem('fmincon',...
@@ -108,7 +113,8 @@ for model = models
     fprintf('Time : %d sec \n',floor(toc))
 
     %% Draw Result
-    [likelihood, V, alpha, SimulationResult, ExperimentResult] = fitfunction(output_result.(model).x);
+    [negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = fitfunction(output_result.(model).x);
+    output_result.(model).Model_element_number = Model_element_number;
     fig = figure('name', model, 'Position', [98,509,981,358]);
     ax1 = subplot(2,10,1:10);
     if strcmp(value, 'V')
@@ -123,13 +129,13 @@ for model = models
     legend([plot_1{1}, plot_2{1}], {'high reward', 'low reward'});
     
     for i = 1 : 10
-        subplot(2,10,4+i);
+        subplot(2,10,10+i);
         title(strcat("Block ", num2str(i)));
         hold on;
-        bar((1:50)-0.25, SimulationResult.HighDistractor.Distribution{i}, 'FaceColor', CC.high, 'BarWidth',0.5, 'EdgeAlpha', 0);
-        bar((1:50)+0.25, SimulationResult.LowDistractor.Distribution{i}, 'FaceColor', CC.low, 'BarWidth',0.5, 'EdgeAlpha', 0);
-        plot(ExperimentResult.HighDistractor.Distribution{i}, 'Color', CC.high);
-        plot(ExperimentResult.LowDistractor.Distribution{i}, 'Color', CC.low);
+        bar((1:50)-0.25, SimulationResult.HighTarget.Distribution{i}, 'FaceColor', CC.high, 'BarWidth',0.5, 'EdgeAlpha', 0);
+        bar((1:50)+0.25, SimulationResult.LowTarget.Distribution{i}, 'FaceColor', CC.low, 'BarWidth',0.5, 'EdgeAlpha', 0);
+        plot(ExperimentResult.HighTarget.Distribution{i}, 'Color', CC.high);
+        plot(ExperimentResult.LowTarget.Distribution{i}, 'Color', CC.low);
     end
     savefig(fig,strcat('../result_nll', filesep, experiment, filesep, value, filesep, model,'_',experiment,'_',value,'_result.fig'));
 end

@@ -139,7 +139,8 @@ for model = models
     fprintf('Time : %d sec \n',floor(toc))
 
     %% Draw Result
-    [likelihood, V, alpha, SimulationResult, ExperimentResult] = fitfunction(output_result.(model).x);
+    [negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = fitfunction(output_result.(model).x);
+    output_result.(model).Model_element_number = Model_element_number;
     fig = figure('name', model, 'Position', [98,509,981,358]);
     ax1 = subplot(2,4,1:4);
     if strcmp(value, 'V')
