@@ -40,6 +40,9 @@ opts = optimoptions('fmincon',...
 
 %% Run Through Models
 output_result = struct();
+if ~iscell(models)
+    models = {models};
+end
 for model = models
     tic;
     %% Load Parameters
