@@ -40,29 +40,32 @@ opt_option.M.b = [0];
 
 % Esber Haselgrove Model
 param.EH.lr1_acq.value = 0.05; % lr1 : when delta V >= 0 
-param.EH.lr1_acq.range = 0.01 : 0.02 : 0.07;
+param.EH.lr1_acq.range = 0.005 : 0.02 : 0.07;
 
 param.EH.lr2_acq.value = 0.03; % product of two acq lr > product of two ext lr
-param.EH.lr2_acq.range = 0.01 : 0.02 : 0.07;
+param.EH.lr2_acq.range = 0.005 : 0.02 : 0.07;
 
 param.EH.lr1_ext.value = 0.04;
-param.EH.lr1_ext.range = 0.01 : 0.02 : 0.07;
+param.EH.lr1_ext.range = 0.005 : 0.02 : 0.07;
 
 param.EH.lr2_ext.value = 0.02;
-param.EH.lr2_ext.range = 0.01 : 0.02 : 0.07;
+param.EH.lr2_ext.range = 0.005 : 0.02 : 0.07;
 
 param.EH.k.value = 0.2;
-param.EH.k.range = 0.1:0.1:0.4;
+%param.EH.k.range = 0.1:0.1:0.4;
+param.EH.k.range = 0.1:0.1:0.8;
 
 param.EH.lr_pre.value = 0.02;
-param.EH.lr_pre.range = 0.01 : 0.01 : 0.05;
+param.EH.lr_pre.range = 0.01 : 0.01 : 0.3;
 
 % param.EH.limitV = false;
 
-opt_option.EH.A = [...
-    -1, 0, 1, 0, 0, 0;
-    0, -1, 0, 1, 0, 0];
-opt_option.EH.b = [0,0];
+% opt_option.EH.A = [...
+%     -1, 0, 1, 0, 0, 0;
+%     0, -1, 0, 1, 0, 0];
+% opt_option.EH.b = [0,0];
+opt_option.EH.A = [];
+opt_option.EH.b = [];
 
 % Schmajuk-Pearson-Hall Model
 param.SPH.S.value = 0.3;

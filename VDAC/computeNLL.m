@@ -6,9 +6,15 @@ function [negativeloglikelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_
 %     X(1) * (V + X(2)) = Experiment Result factor (ex. RT, accuracy)
 
 %% Schedule
-schedule_training = schedule.schedule_training;
-schedule_training_repeat = schedule.schedule_training_repeat;
-schedule_training_N = schedule.schedule_training_N;
+% Training schedule means the schedule is used for the simulation, 
+% but the result does not effect the fitting result
+if isfield(schedule, 'schedule_training')
+    schedule_training = schedule.schedule_training;
+    schedule_training_repeat = schedule.schedule_training_repeat;
+    schedule_training_N = schedule.schedule_training_N;
+else % no schedule. Even the training session is used for the fitting
+    schedule_training_N = 0;
+end
 
 schedule_testing = schedule.schedule_testing;
 schedule_testing_repeat = schedule.schedule_testing_repeat;
@@ -28,7 +34,19 @@ alpha = zeros(schedule_training_N + schedule_testing_N,3,num_repeat);
 
 for r = 1 : num_repeat
     % Shuffle schedule for repeated simulation
-    schedule_shuffled = [shuffle1D(repmat(schedule_training,schedule_training_repeat,1)); shuffle1D(repmat(schedule_testing,schedule_testing_repeat,1))];
+    if isfield(schedule, 'schedule_training')
+        schedule_shuffled = shuffle1D(repmat(schedule_training,schedule_training_repeat,1));
+    else
+        schedule_shuffled = [];
+    end
+    
+    if iscell(schedule_testing)
+        for i = 1 : numel(schedule_testing)
+            schedule_shuffled = [schedule_shuffled; shuffle1D(repmat(schedule_testing{i},schedule_testing_repeat{i},1))];
+        end
+    else
+        schedule_shuffled = [schedule_shuffled; shuffle1D(repmat(schedule_testing,schedule_testing_repeat,1))];
+    end
 
     [outV, outAlpha] = SimulateModel(schedule_shuffled,model, param);
 
