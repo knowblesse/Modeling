@@ -23,7 +23,7 @@ for i = 1 : length(filenames)
             end
         end
         subplot(1,4,1:3);
-        title(strcat(model_name, "  ", var_name));
+        title(strcat(model_name, "  ", var_name), 'Interpreter', 'none');
         saveas(fig2,strcat(fn(1:end-3),'png'),'png');
     end
 end
