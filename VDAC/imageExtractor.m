@@ -85,3 +85,23 @@ for i = 1 : length(filenames)
         saveas(fig,strcat(fn(1:end-3),'png'),'png');
     end
 end
+
+% Cho Cho
+a = dir();
+filenames = {a.name};
+filenames = filenames(3:end);
+
+for i = 1 : length(filenames)
+    fn = filenames{i};
+    if ~isempty(regexp(fn,'.fig','match'))
+        fig = openfig(fn);
+        fig_data = regexp(fn,'(?<model>\w*?)_.*','names');
+        model_name = fig_data.model;
+        fig_data = regexp(fn,'(\d){4}_(?<var>\w*?)_result.fig','names');
+        var_name = fig_data.var;
+        fig.Position = [98,509,981,358];
+        subplot(2,4,1:4);
+        title(strcat(model_name, "  ", var_name), 'Interpreter', 'none');
+        saveas(fig,strcat(fn(1:end-3),'png'),'png');
+    end
+end
