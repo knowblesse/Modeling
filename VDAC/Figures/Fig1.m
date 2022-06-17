@@ -43,7 +43,7 @@ xlabel('Trials');
 ylabel('V');
 
 % Texts
-t = title('Anderson (2016) - RW');
+t = title('Anderson (2016)');
 t.Position(2) = 1.05; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
@@ -79,7 +79,7 @@ xlabel('Trials');
 ylabel('V');
 
 % Texts
-t = title('Anderson & Halpern (2017) - RW', 'FontSize', 12);
+t = title('Anderson & Halpern (2017)', 'FontSize', 12);
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax2, 'FontName', 'Times New Roman Bold');
@@ -114,7 +114,7 @@ xlabel('Trials');
 ylabel('V');
 
 % Texts
-t = title('Mine & Saiki (2015) - RW');
+t = title('Mine & Saiki (2015)');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
@@ -149,7 +149,7 @@ xlabel('Trials');
 ylabel('V');
 
 % Texts
-t = title('Anderson (2011) - RW');
+t = title('Anderson (2011)');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');

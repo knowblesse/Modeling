@@ -42,7 +42,7 @@ xticks([]);
 ylabel('alpha');
 
 % Texts
-t = title('Anderson et al. (2011) - M');
+t = title('M-alpha');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
@@ -106,7 +106,7 @@ xlabel('Trials');
 ylabel('alpha');
 
 % Texts
-t = title('alpha - EH');
+t = title('EH-alpha');
 t.Position(2) = 2.05;
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
@@ -139,7 +139,7 @@ xlabel('Trials');
 ylabel('V');
 
 % Texts
-t = title('V - RW');
+t = title('RW-V');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');
