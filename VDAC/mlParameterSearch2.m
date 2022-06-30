@@ -132,6 +132,9 @@ for model = models
     for ip = 1 : numel(fieldnames(modelParam))
         text(0.05, 0.45-(0.1*ip), strcat(fnames{ip}, " : ", num2str(output_result.(model).x(ip+2), ' %.3f')), 'FontSize', 15);
     end
+    if iscell(value)
+        value = value{1};
+    end
     savefig(fig,strcat('./result_nll', filesep, experiment, filesep, value, filesep, model,'_',experiment,'_',value,'_result.fig'));
 end
 save(strcat('./result_nll', filesep, experiment, filesep, value, filesep, experiment,'_',value,'_result.mat'),'output_result');

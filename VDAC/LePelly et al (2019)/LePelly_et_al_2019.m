@@ -50,7 +50,7 @@ num_repeat = 200;
 
 CC.high = [231,124,141]./255; % stimulus condition where the RT should be longer than the low condition
 CC.low = [94,165,197]./255; % stimulus condition where the RT should be shorter than the high condition
-CC.np = [0,0,0]; % stimulus condition where the RT should be longer than the low condition
+CC.np = [0,0,0]; 
 
 %% Local Optimizer Options
 opts = optimoptions('fmincon',...
