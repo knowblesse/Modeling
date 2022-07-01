@@ -5,6 +5,7 @@
 %% Parameters
 rng(0);
 addpath('../../helper_function');
+addpath('../../');
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+
@@ -13,13 +14,13 @@ addpath('../../helper_function');
 % | 1 or 0 | 1 or 0 | 1 or 0 | 1 or 0 | float                     |
 % +--------+--------+--------+--------+---------------------------+
 % There are three stimulus types and two phases in the hypothetical experiment.
-% Phase 1 : A-      C+(1.0)
+% Phase 1 : A-      C+(0.5)
 % Phase 2 : A+(0.5) B+(0.5)
 % The simplest design for the latent inhibition is A- -> A+ & B+, and the expected result is 
 % higher value to the B compared to the A. 
 % However, I included an other stimulus, C, in the first phase to eliminate a criticism, that 
 % the no-rewarding phase directly effect the behavior performance. 
-% In this new design, the expected result is C >> B > A.
+% In this new design, the expected result is C == B > A.
 
 high_reward = 1; 
 low_reward = 0.5;
@@ -28,7 +29,7 @@ no_reward = 0;
 schedule = struct();
 schedule.schedule{1} = repmat([...
     [1,0,0,0,no_reward];...
-    [0,0,1,1,high_reward];...
+    [0,0,1,1,low_reward];...
     ],200,1); % 2 trials x 200 blocks
 schedule.schedule{2} = repmat([...
     [1,0,0,1,low_reward];...
@@ -41,7 +42,7 @@ num_repeat = 200;
 
 CC.old = [0.5,0.5,0.5]; % CS1 which was presented from the beginning
 CC.new = [0,0,0]; % CS2 which was presented from the second phase
-CC.high = [0.5, 0.5, 0.5]; % CS 3 which was paired with lambda = 1
+CC.high = [0.5, 0.5, 0.5]; % CS 3 which was paired with lambda = 0.5
 
 %% Load Parameters
 [param, opt_option] = getDefaultParam();
@@ -156,7 +157,7 @@ yticks(0:0.2:1);
 ylim([0,1]);
 xlabel('Trials');
 ylabel('V');
-legend([plot_1{1}, plot_2{1}, plot_3{1}], {'old distractor', 'new distractor', 'control distractor'});
+legend([plot_1{1}, plot_2{1}, plot_3{1}], {'pre-exposed distractor', 'new distractor', 'old distractor'});
 
 % Texts
 t = title('SPH-V');
@@ -177,7 +178,7 @@ yticks(0:0.2:1);
 ylim([0,1]);
 xlabel('Trials');
 ylabel('alpha');
-legend([plot_1{1}, plot_2{1}, plot_3{1}], {'old distractor', 'new distractor', 'control distractor'});
+legend([plot_1{1}, plot_2{1}, plot_3{1}], {'pre-exposed distractor', 'new distractor', 'old distractor'});
     
 % Texts
 t = title('SPH-alpha');
