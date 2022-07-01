@@ -3,7 +3,6 @@
 %% Parameters
 experiment = 'LatentInhibition';
 models = {'M', 'SPH', 'EH'};
-
 rng('shuffle');
 addpath('../../helper_function');
 addpath('../../');
@@ -34,30 +33,37 @@ schedule.schedule{1} = repmat([...
     ],200,1); % 2 trials x 200 blocks
 schedule.schedule{2} = repmat([...
     [1,0,0,1,low_reward];...
-    [1,1,0,1,low_reward];
+    [0,1,0,1,low_reward];
     ],200,1); % 2 trials x 200 blocks
 schedule.N = 800;
 
 %% parameters
 num_repeat = 200;
 
-CC.high = [231,124,141]./255; % CS 3 which was paired with lambda = 1
+CC.old = [231,124,141]./255; % CS1 which was presented from the beginning
 CC.new = [94,165,197]./255; % CS2 which was presented from the second phase
-CC.old = [20,165,40]./255; % CS1 which was presented from the beginning
+CC.high = [20,165,40]./255; % CS 3 which was paired with lambda = 1
 
+%% Load Parameters
+[param, opt_option] = getDefaultParam();
+param.M.lr_acq.value = 0.08;
+param.M.lr_ext.value = 0.04;
+param.M.k.value = 0.06;
+param.M.epsilon.value = 0.03;
+param.SPH.S.value = 0.1;
+param.SPH.beta_ex.value = 0.2;
+param.SPH.beta_in.value = 0.1;
+param.SPH.gamma.value = 0.03;
+param.EH.lr1_acq.value = 0.04;
+param.EH.lr2_acq.value = 0.03; 
+param.EH.lr1_ext.value = 0.04;
+param.EH.lr2_ext.value = 0.02;
+param.EH.k.value = 0.4;
+param.EH.lr_pre.value = 0.01;
 %% Run Through Models
 output_result = struct();
 for model = models
-    %% Load Parameters
     model = model{1};
-    load('../result_nll/Liao_et_al_2020/V/Liao_et_al_2020_V_result.mat');
-    [param, opt_option] = getDefaultParam();
-    fnames = fieldnames(param.(model));
-    for fn = 1 : numel(fieldnames(param.(model)))
-        param.(model).(fnames{fn}).value = output_result.(model).x(fn+2);
-    end
-    
-    %% Run Simulation
     numBinModel = 50; % number of bins to divide the v or alpha
 
     V = zeros(schedule.N,3,num_repeat);
@@ -79,55 +85,63 @@ for model = models
     %% Generate Experiment & Model Distribution for plotting
 
     % Concatenate Simulation Result
-    Old_V = V(:,1,:);
-    New_V = V(:,2,:);
-    High_V = V(:,3,:);
+    Old_V = squeeze(V(:,1,:));
+    New_V = squeeze(V(:,2,:));
+    High_V = squeeze(V(:,3,:));
 
-    Old_alpha = alpha(:,1,:);
-    New_alpha = alpha(:,2,:);
-    High_alpha = alpha(:,3,:);
+    Old_alpha = squeeze(alpha(:,1,:));
+    New_alpha = squeeze(alpha(:,2,:));
+    High_alpha = squeeze(alpha(:,3,:));
 
     % Generate Simulation Distribution
-    Model_element_number = (schedule.N * num_repeat);
+    Old_V_dist_b1 = histcounts(Old_V(401:600,:), linspace(0,1,numBinModel + 1))/(200 * num_repeat);
+    Old_V_dist_b2 = histcounts(Old_V(601:800,:), linspace(0,1,numBinModel + 1))/(200 * num_repeat);
+    New_V_dist_b1 = histcounts(New_V(401:600,:), linspace(0,1,numBinModel + 1))/(200 * num_repeat);
+    New_V_dist_b2 = histcounts(New_V(601:800,:), linspace(0,1,numBinModel + 1))/(200 * num_repeat);
 
-    Old_V_dist = histcounts(Old_V, linspace(0,1,numBinModel + 1))/Model_element_number;
-    New_V_dist = histcounts(New_V, linspace(0,1,numBinModel + 1))/Model_element_number;
-    High_V_dist = histcounts(High_V, linspace(0,1,numBinModel + 1))/Model_element_number;
-
-    Old_alpha_dist = histcounts(Old_alpha, linspace(0,1,numBinModel + 1))/Model_element_number;
-    New_alpha_dist = histcounts(New_alpha, linspace(0,1,numBinModel + 1))/Model_element_number;
-    High_alpha_dist = histcounts(High_alpha, linspace(0,1,numBinModel + 1))/Model_element_number;
+    Old_alpha_dist_b1 = histcounts(Old_alpha(401:600,:), linspace(0,1,numBinModel + 1))/(200 * num_repeat);
+    Old_alpha_dist_b2 = histcounts(Old_alpha(601:800,:), linspace(0,1,numBinModel + 1))/(200 * num_repeat);
+    New_alpha_dist_b1 = histcounts(New_alpha(401:600,:), linspace(0,1,numBinModel + 1))/(200 * num_repeat);
+    New_alpha_dist_b2 = histcounts(New_alpha(601:800,:), linspace(0,1,numBinModel + 1))/(200 * num_repeat);
 
     %% Draw Plot
     fig = figure('name', model, 'Position', [200, 120, 1200, 800]);
-    ax1 = subplot(2,4,1:3);
+    ax1 = subplot(4,4,[1:3,5:7]);
     [~,plot_1] = plot_shade(ax1, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.old,'LineWidth',2.3,'Shade',true);
-    [~,plot_2] = plot_shade(ax1, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.new,'LineWidth',2,'Shade',true);
-    [~,plot_3] = plot_shade(ax1, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.high,'LineWidth',1.7,'Shade',true);
+    [~,plot_2] = plot_shade(ax1, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.new,'LineWidth',2,'Shade',true, 'x', 401:800);
+    [~,plot_3] = plot_shade(ax1, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.high,'LineWidth',1.7,'Shade',true, 'x', 1:400);
     ylim([0,1]);
-    legend([plot_1{1}, plot_2{1}, plot_3{1}], {'old distractor', 'new distractor', 'high distractor'});
+    legend([plot_1{1}, plot_2{1}, plot_3{1}], {'old distractor', 'new distractor', 'control distractor'});
 
-    ax2 = subplot(2,4,4);
-    bar((1:50)-0.5*2/3, Old_V_dist, 'FaceColor', CC.old, 'BarWidth',0.3, 'EdgeAlpha',0);
+    ax21 = subplot(4,4,4);
+    bar((1:50)-0.25, Old_V_dist_b1, 'FaceColor', CC.old, 'BarWidth', 0.5, 'EdgeAlpha', 0);
     hold on;
-    bar((1:50), New_V_dist, 'FaceColor', CC.new, 'BarWidth',0.3, 'EdgeAlpha',0);
-    bar((1:50)+0.5*2/3, High_V_dist, 'FaceColor', CC.high, 'BarWidth', 0.3, 'EdgeAlpha',0);
-    ax2.View = [90, -90];
+    bar((1:50)+0.25, New_V_dist_b1, 'FaceColor', CC.new, 'BarWidth', 0.5, 'EdgeAlpha', 0);
 
-    ax3 = subplot(2,4,5:7);
+    ax22 = subplot(4,4,8);
+    bar((1:50)-0.25, Old_V_dist_b2, 'FaceColor', CC.old, 'BarWidth', 0.5, 'EdgeAlpha', 0);
+    hold on;
+    bar((1:50)+0.25, New_V_dist_b2, 'FaceColor', CC.new, 'BarWidth', 0.5, 'EdgeAlpha', 0);
+
+    ax3 = subplot(4,4,[9:11, 13:15]);
     [~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.old,'LineWidth',2.3,'Shade',true);
-    [~,plot_2] = plot_shade(ax3, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.new,'LineWidth',2,'Shade',true);
-    [~,plot_3] = plot_shade(ax3, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.high,'LineWidth',1.7,'Shade',true);
+    [~,plot_2] = plot_shade(ax3, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.new,'LineWidth',2,'Shade',true, 'x', 401:800);
+    [~,plot_3] = plot_shade(ax3, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.high,'LineWidth',1.7,'Shade',true, 'x', 1:400);
     ylim([0,1]);
-    legend([plot_1{1}, plot_2{1}, plot_3{1}], {'old distractor', 'new distractor', 'high distractor'});
+    legend([plot_1{1}, plot_2{1}, plot_3{1}], {'old distractor', 'new distractor', 'control distractor'});
     
-    ax4 = subplot(2,4,8);
-    bar((1:50)-0.5*2/3, Old_alpha_dist, 'FaceColor', CC.old, 'BarWidth',0.3);
+    ax41 = subplot(4,4,12);
+    bar((1:50)-0.25, Old_alpha_dist_b1, 'FaceColor', CC.old, 'BarWidth', 0.5, 'EdgeAlpha', 0);
     hold on;
-    bar((1:50), New_alpha_dist, 'FaceColor', CC.new, 'BarWidth',0.3);
-    bar((1:50)+0.5*2/3, High_alpha_dist, 'FaceColor', CC.high, 'BarWidth', 0.3);
-    ax4.View = [90, -90];
+    bar((1:50)+0.25, New_alpha_dist_b1, 'FaceColor', CC.new, 'BarWidth',0.5, 'EdgeAlpha', 0);
+
+    ax42 = subplot(4,4,16);
+    bar((1:50)-0.25, Old_alpha_dist_b2, 'FaceColor', CC.old, 'BarWidth', 0.5, 'EdgeAlpha', 0);
+    hold on;
+    bar((1:50)+0.25, New_alpha_dist_b2, 'FaceColor', CC.new, 'BarWidth',0.5, 'EdgeAlpha', 0);
     
+    subplot(4,4,[1:3,5:7]);
+    text(500,1.1,strcat("Liao a ", model), 'FontSize', 16);
     %savefig(fig,strcat('../result_nll', filesep, experiment, filesep, value, filesep, model,'_',experiment,'_',value,'_result.fig'));
 end
 %save(strcat('../result_nll', filesep, experiment, filesep, value, filesep, experiment,'_',value,'_result.mat'),'output_result');
