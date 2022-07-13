@@ -1,11 +1,27 @@
 %% Fig5
 % Draw figure 5
-% LatentInhibition
 
-%% Parameters
-rng(0);
+%% parameters
+rng('shuffle');
+addpath('../..');
+addpath('../');
 addpath('../../helper_function');
-addpath('../../');
+addpath('../experiments');
+addpath('../Liao et al (2020)');
+
+CC.high = [0.8902,0.3176,0.3569]; % stimulus condition where the RT should be longer than the low condition
+CC.low = [0.3608,0.6510,0.7137]; % stimulus condition where the RT should be shorter than the high condition
+num_repeat = 500;
+
+%% Experiment Data
+% all mean RT values are subtracted from RT of corresponding neutral condition
+ExperimentData.NeutralRT = [463.1204, 436.3744, 446.7162, 419.8514];
+ExperimentData.OldHighDistractor.Mean = [0.178, 6.320, 19.496, 2.849];
+ExperimentData.OldHighDistractor.SD = 3;
+ExperimentData.LowDistractor.Mean = [-10.415, -6.588, -9.436, 6.142]; 
+ExperimentData.LowDistractor.SD = 3;
+ExperimentData.NewHighDistractor.Mean = [0.445, -1.424, -0.712, 13.086]; 
+ExperimentData.NewHighDistractor.SD = 3;
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+
@@ -13,181 +29,111 @@ addpath('../../');
 % +--------+--------+--------+--------+---------------------------+
 % | 1 or 0 | 1 or 0 | 1 or 0 | 1 or 0 | float                     |
 % +--------+--------+--------+--------+---------------------------+
-% There are three stimulus types and two phases in the hypothetical experiment.
-% Phase 1 : A-      C+(0.5)
-% Phase 2 : A+(0.5) B+(0.5)
-% The simplest design for the latent inhibition is A- -> A+ & B+, and the expected result is 
-% higher value to the B compared to the A. 
-% However, I included an other stimulus, C, in the first phase to eliminate a criticism, that 
-% the no-rewarding phase directly effect the behavior performance. 
-% In this new design, the expected result is C == B > A.
-
-high_reward = 1; 
-low_reward = 0.5;
-no_reward = 0;
+high_reward = 1; %8 cents
+low_reward = 0.25; %2 cents
 
 schedule = struct();
+%-------------------- Block 1 Training ---------------------------%
 schedule.schedule{1} = repmat([...
-    [1,0,0,0,no_reward];...
-    [0,0,1,1,low_reward];...
-    ],200,1); % 2 trials x 200 blocks
+    repmat([1,0,0,1,high_reward],4,1);... % OldHigh : 80% high
+    repmat([1,0,0,1,low_reward],1,1);... % OldHigh : 20% low
+    repmat([0,1,0,1,high_reward],1,1);... % low : 20% high
+    repmat([0,1,0,1,low_reward],4,1);... % low : 80% low
+    repmat([0,0,1,0,0],5,1);... % NewHigh no reward
+    ],6,1); % thesis : 96 trials. simulation : 15 trials x 6 blocks = 90 trials
+%--------------------- Block 1 Testing ---------------------------%
 schedule.schedule{2} = repmat([...
-    [1,0,0,1,low_reward];...
-    [0,1,0,1,low_reward];
-    ],200,1); % 2 trials x 200 blocks
-schedule.N = 800;
+    repmat([1,0,0,0,0],1,1);... % OldHigh
+    repmat([0,1,0,0,0],1,1);... % low
+    repmat([0,0,1,0,0],1,1);... % NewHigh
+    repmat([0,0,0,0,0],1,1);... % distractor-absent
+    ],24,1); % thesis : 96 trials. simulation : 4 trials * 24 blocks = 96 trials
+    % The thesis never mention about the proportions of each trials in the testing phase. 
+    % I considered all trial type has the equal proportions.
+schedule.schedule{3} = schedule.schedule{1};
+schedule.schedule{4} = schedule.schedule{2};
+schedule.schedule{5} = repmat([...
+    repmat([0,0,1,1,high_reward],4,1);... % NewHigh : 80% high
+    repmat([0,0,1,1,low_reward],1,1);... % NewHigh : 20% low
+    repmat([0,1,0,1,high_reward],1,1);... % low : 20% high
+    repmat([0,1,0,1,low_reward],4,1);... % low : 80% low
+    repmat([1,0,0,0,0],5,1);... % OldHigh : no reward
+    ],6,1); % thesis : 96 trials. simulation : 15 trials x 6 blocks = 90 trials
+schedule.schedule{6} = repmat([...
+    repmat([1,0,0,0,0],1,1);... % OldHigh
+    repmat([0,1,0,0,0],1,1);... % low
+    repmat([0,0,1,0,0],1,1);... % NewHigh
+    repmat([0,0,0,0,0],1,1);... % distractor-absent
+    ],24,1); % thesis : 96 trials. simulation : 4 trials * 24 blocks = 96 trials
+schedule.schedule{7} = schedule.schedule{5};
+schedule.schedule{8} = schedule.schedule{6};
 
-%% parameters
-num_repeat = 200;
+schedule.N = (90 + 96) * 4;
 
-CC.old = [0.5,0.5,0.5]; % CS1 which was presented from the beginning
-CC.new = [0,0,0]; % CS2 which was presented from the second phase
-CC.high = [0.5, 0.5, 0.5]; % CS 3 which was paired with lambda = 0.5
-
-%% Load Parameters
-[param, opt_option] = getDefaultParam();
-param.M.lr_acq.value = 0.08;
-param.M.lr_ext.value = 0.04;
-param.M.k.value = 0.06;
-param.M.epsilon.value = 0.03;
-param.SPH.S.value = 0.1;
-param.SPH.beta_ex.value = 0.2;
-param.SPH.beta_in.value = 0.1;
-param.SPH.gamma.value = 0.03;
-
-numBinModel = 50; % number of bins to divide the v or alpha
+testBlocks = {[90, 186], [276, 372], [462, 558], [648, 744]};
 
 %% Make Figure
 fig = figure(5);
 clf(fig);
 fig.Position = [-1572,229,1265,671];
+ax1 = subplot(1,1,1);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%           Figure 5a,c         %%
+%%            Figure 4          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+model = 'EH';
+mode = 'alpha';
+Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/alpha/Liao_et_al_2020_alpha_result.mat');
+X = Liao_et_al_2020_result.output_result.(model).x;
 
-model = 'M';
+[negative_log, ~, alpha, ~, ~, ~] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+RT = X(1) * ( alpha + X(2) );
 
-V = zeros(schedule.N,3,num_repeat);
-alpha = zeros(schedule.N,3,num_repeat);
-
-for r = 1 : num_repeat
-    % Shuffle schedule for repeated simulation
-    schedule_shuffled = [
-        shuffle1D(schedule.schedule{1});...
-        shuffle1D(schedule.schedule{2});...
-        ];
-
-    [outV, outAlpha] = SimulateModel(schedule_shuffled, model, param);
-
-    V(:,:,r) = outV; % [trial, cs type, repeat]
-    alpha(:,:,r) = outAlpha;
+% old high real, old high simul, nan(for spacing), new high real, new high simul, nan, low real, low simul, control
+data = nan(4,10);
+for block = 1 : 4
+    data(block,:) = [...
+        ExperimentData.OldHighDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 1, :), 'all'), nan,...
+        ExperimentData.NewHighDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 3, :), 'all'), nan,...
+        ExperimentData.LowDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 2, :), 'all'), nan,...
+        0] + ExperimentData.NeutralRT(block);
 end
 
-ax1 = subplot(2,2,1);
-[~,plot_1] = plot_shade(ax1, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.old,'LineWidth',2.3,'Shade',true);
-[~,plot_2] = plot_shade(ax1, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.new,'LineWidth',2,'Shade',true, 'x', 401:800);
-[~,plot_3] = plot_shade(ax1, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.high,'LineWidth',1.7,'Shade',true, 'LineStyle', '--','x', 1:400);
-xticks(100:100:800);
-yticks(0:0.2:1);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('V');
+bobject = bar(data, 'FaceColor', 'flat', 'LineStyle', 'none', 'BarWidth', 1);
+bobject(1).CData = [0.4,0.4,0.4];
+bobject(2).CData = CC.high; % old high
+bobject(4).CData = [0.4,0.4,0.4];
+bobject(5).CData = CC.low; % new high
+bobject(7).CData = [0.4,0.4,0.4];
+bobject(8).CData = [0,155,107]/255; % low
+bobject(10).CData = [0.4,0.4,0.4];
 
+hold on;
+for block = 1 : 4
+    for ibar = [1,4,7,10]
+        line([bobject(ibar).XEndPoints(block),bobject(ibar).XEndPoints(block)], [data(block,ibar)-3, data(block,ibar)+3], 'Color', 'k', 'LineWidth', 2);
+    end
+end
+
+% block separtor
+line([1.5, 1.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '--');
+line([2.5, 2.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '--');
+line([3.5, 3.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '--');
+
+
+% Axis
+ylim([400,480]);
+ylabel('RT (ms)', 'FontSize', 13);
 
 % Texts
-t = title('M-V');
-t.Position(2) = 1.05; % slightly move up
+t = title('Liao et al. (2020)');
+t.Position(2) = 480 + (480-400)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
-text(-50,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+xticklabels({'Block1', 'Block2', 'Block3', 'Block4'});
+legend([bobject(2), bobject(5), bobject(8)], {'old high-value', 'new high-value', 'low-value'});
 
-% Extend
-ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07, ax1.Position(4)];
-
-ax3 = subplot(2,2,3);
-[~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.old,'LineWidth',2.3,'Shade',true);
-[~,plot_2] = plot_shade(ax3, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.new,'LineWidth',2,'Shade',true, 'x', 401:800);
-[~,plot_3] = plot_shade(ax3, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.high,'LineWidth',1.7,'Shade',true, 'LineStyle', '--', 'x', 1:400);
-xticks(100:100:800);
-yticks(0:0.2:1);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('alpha');
-
-    
-% Texts
-t = title('M-alpha');
-t.Position(2) = 1.05; % slightly move up
-t.FontSize = 13;
-set(ax3, 'FontName', 'Times New Roman Bold');
-text(-50,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
-
-% Extend
-ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.07, ax3.Position(4)];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%           Figure 5b,d         %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-model = 'SPH';
-
-V = zeros(schedule.N,3,num_repeat);
-alpha = zeros(schedule.N,3,num_repeat);
-
-for r = 1 : num_repeat
-    % Shuffle schedule for repeated simulation
-    schedule_shuffled = [
-        shuffle1D(schedule.schedule{1});...
-        shuffle1D(schedule.schedule{2});...
-        ];
-
-    [outV, outAlpha] = SimulateModel(schedule_shuffled, model, param);
-
-    V(:,:,r) = outV; % [trial, cs type, repeat]
-    alpha(:,:,r) = outAlpha;
-end
-
-ax2 = subplot(2,2,2);
-[~,plot_1] = plot_shade(ax2, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.old,'LineWidth',2.3,'Shade',true);
-[~,plot_2] = plot_shade(ax2, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.new,'LineWidth',2,'Shade',true, 'x', 401:800);
-[~,plot_3] = plot_shade(ax2, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.high,'LineWidth',1.7,'Shade',true, 'LineStyle', '--','x', 1:400);
-xticks(100:100:800);
-yticks(0:0.2:1);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('V');
-legend([plot_1{1}, plot_2{1}, plot_3{1}], {'pre-exposed distractor', 'new distractor', 'old distractor'});
-
-% Texts
-t = title('SPH-V');
-t.Position(2) = 1.05; % slightly move up
-t.FontSize = 13;
-set(ax2, 'FontName', 'Times New Roman Bold');
-text(-50,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
-
-% Extend
-ax2.Position = [ax2.Position(1), ax2.Position(2), ax2.Position(3)+0.07, ax2.Position(4)];
-
-ax4 = subplot(2,2,4);
-[~,plot_1] = plot_shade(ax4, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.old,'LineWidth',2.3,'Shade',true);
-[~,plot_2] = plot_shade(ax4, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.new,'LineWidth',2,'Shade',true, 'x', 401:800);
-[~,plot_3] = plot_shade(ax4, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.high,'LineWidth',1.7,'Shade',true, 'LineStyle', '--', 'x', 1:400);
-xticks(100:100:800);
-yticks(0:0.2:1);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('alpha');
-legend([plot_1{1}, plot_2{1}, plot_3{1}], {'pre-exposed distractor', 'new distractor', 'old distractor'});
-    
-% Texts
-t = title('SPH-alpha');
-t.Position(2) = 1.05; % slightly move up
-t.FontSize = 13;
-set(ax4, 'FontName', 'Times New Roman Bold');
-text(-50,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
-
-% Extend
-ax4.Position = [ax4.Position(1), ax4.Position(2), ax4.Position(3)+0.07, ax4.Position(4)];
+% Extend 
+ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.14, ax1.Position(4)];
 
 saveas(fig, 'Fig5.png');

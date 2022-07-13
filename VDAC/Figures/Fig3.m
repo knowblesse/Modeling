@@ -1,8 +1,5 @@
 %% Fig3
 % Draw figure 3
-% EH-V model, RW-V : ext + acq
-% EH-a model, SPH-a : acq
-
 
 %% parameters
 rng('shuffle');
@@ -10,225 +7,144 @@ addpath('../..');
 addpath('../');
 addpath('../../helper_function');
 addpath('../experiments');
-addpath('../Liao et al (2020)');
+addpath('../AndersonPLOS1 (2011)');
 
-CC.high = [0,0,0]; % stimulus condition where the RT should be longer than the low condition
-CC.low = [0.5, 0.5, 0.5]; % stimulus condition where the RT should be shorter than the high condition
+CC.high = [0.8902,0.3176,0.3569]; % stimulus condition where the RT should be longer than the low condition
+CC.low = [0.3608,0.6510,0.7137]; % stimulus condition where the RT should be shorter than the high condition
 num_repeat = 500;
 
-%% Experiment Data
-% all mean RT values are subtracted from RT of corresponding neutral condition
-ExperimentData.OldHighDistractor.Mean = [0.178, 6.320, 19.496, 2.849];
-ExperimentData.OldHighDistractor.SD = 3;
-ExperimentData.LowDistractor.Mean = [-10.415, -6.588, -9.436, 6.142]; 
-ExperimentData.LowDistractor.SD = 3;
-ExperimentData.NewHighDistractor.Mean = [0.445, -1.424, -0.712, 13.086]; 
-ExperimentData.NewHighDistractor.SD = 3;
-
-%% Experiment Schedule
-% +--------+--------+--------+--------+---------------------------+
-% | CS1    | CS2    | CS3    | US     | US intensity(reward size) |
-% +--------+--------+--------+--------+---------------------------+
-% | 1 or 0 | 1 or 0 | 1 or 0 | 1 or 0 | float                     |
-% +--------+--------+--------+--------+---------------------------+
-high_reward = 1; %8 cents
-low_reward = 0.25; %2 cents
-
-schedule = struct();
-%-------------------- Block 1 Training ---------------------------%
-schedule.schedule{1} = repmat([...
-    repmat([1,0,0,1,high_reward],4,1);... % OldHigh : 80% high
-    repmat([1,0,0,1,low_reward],1,1);... % OldHigh : 20% low
-    repmat([0,1,0,1,high_reward],1,1);... % low : 20% high
-    repmat([0,1,0,1,low_reward],4,1);... % low : 80% low
-    repmat([0,0,1,0,0],5,1);... % NewHigh no reward
-    ],6,1); % thesis : 96 trials. simulation : 15 trials x 6 blocks = 90 trials
-%--------------------- Block 1 Testing ---------------------------%
-schedule.schedule{2} = repmat([...
-    repmat([1,0,0,0,0],1,1);... % OldHigh
-    repmat([0,1,0,0,0],1,1);... % low
-    repmat([0,0,1,0,0],1,1);... % NewHigh
-    repmat([0,0,0,0,0],1,1);... % distractor-absent
-    ],24,1); % thesis : 96 trials. simulation : 4 trials * 24 blocks = 96 trials
-    % The thesis never mention about the proportions of each trials in the testing phase. 
-    % I considered all trial type has the equal proportions.
-schedule.schedule{3} = schedule.schedule{1};
-schedule.schedule{4} = schedule.schedule{2};
-schedule.schedule{5} = repmat([...
-    repmat([0,0,1,1,high_reward],4,1);... % NewHigh : 80% high
-    repmat([0,0,1,1,low_reward],1,1);... % NewHigh : 20% low
-    repmat([0,1,0,1,high_reward],1,1);... % low : 20% high
-    repmat([0,1,0,1,low_reward],4,1);... % low : 80% low
-    repmat([1,0,0,0,0],5,1);... % OldHigh : no reward
-    ],6,1); % thesis : 96 trials. simulation : 15 trials x 6 blocks = 90 trials
-schedule.schedule{6} = repmat([...
-    repmat([1,0,0,0,0],1,1);... % OldHigh
-    repmat([0,1,0,0,0],1,1);... % low
-    repmat([0,0,1,0,0],1,1);... % NewHigh
-    repmat([0,0,0,0,0],1,1);... % distractor-absent
-    ],24,1); % thesis : 96 trials. simulation : 4 trials * 24 blocks = 96 trials
-schedule.schedule{7} = schedule.schedule{5};
-schedule.schedule{8} = schedule.schedule{6};
-
-schedule.N = (90 + 96) * 4;
-
-testBlocks = {[90, 186], [276, 372], [462, 558], [648, 744]};
-
-%% Make Figure
 fig = figure(3);
 clf(fig);
 fig.Position = [-1572,229,1265,671];
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 3a          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-model = 'EH';
-mode = 'V';
-Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/V/Liao_et_al_2020_V_result.mat');
-X = Liao_et_al_2020_result.output_result.EH.x;
+Anderson_et_al_PLOS1_2011;
+model = 'M';
+value = 'alpha';
+Anderson_et_al_PLOS1_2011_result = load(strcat('../result_nll/Anderson_et_al_PLOS1_2011/', value, '/Anderson_et_al_PLOS1_2011_', value, '_result.mat'));
+X = Anderson_et_al_PLOS1_2011_result.output_result.(model).x;
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL2(X, schedule, model, num_repeat, ExperimentData, value);
 
 % Plot
-ax1 = subplot(2,2,1);
+ax1 = subplot(3,10,1:10);
 hold on;
-[~,plot_1] = plot_shade(ax1, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax1, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
-patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], [0,0,0.3,0.3], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,0.3,0.3], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,0.3,0.3], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,0.3,0.3], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'});
+[~,plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
+[~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
+legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
 axis tight
 
 % Axis
-xticks(100:100:700);
-ylim([0,0.3]);
-xlabel('Trials');
-ylabel('V');
+ylim([0.4,1]);
+xticks([]);
+ylabel('alpha', 'FontSize', 13);
 
 % Texts
-t = title('EH-V');
-t.Position(2) = 1.05*0.3; % slightly move up
+t = title('M-alpha');
+t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
 text(-50,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
-% Extend 
-ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07, ax1.Position(4)];
+% Extend?
+ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07*2, ax1.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 3b          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-model = 'RW';
-mode = 'V';
-Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/V/Liao_et_al_2020_V_result.mat');
-X = Liao_et_al_2020_result.output_result.RW.x;
+ax2 = cell(10,1);
+for i = 1 : 10
+    ax2{i} = subplot(3,10,10+i);
+    cla(ax2{i});
+    ax2{i}.View = [90, -90];
+    hold on;
+    bar((1:50)-0.25, SimulationResult.HighTarget.Distribution{i}, 'FaceColor', CC.high, 'BarWidth',0.75, 'EdgeAlpha', 0);
+    bar((1:50)+0.25, SimulationResult.LowTarget.Distribution{i}, 'FaceColor', CC.low, 'BarWidth',0.75, 'EdgeAlpha', 0);
+    plot(ExperimentResult.HighTarget.Distribution{i}, 'Color', CC.high, 'LineWidth', 1);
+    plot(ExperimentResult.LowTarget.Distribution{i}, 'Color', CC.low, 'LineWidth', 1);
+    xlim([21,50]);
+    ylim([0,0.4]);
+    xticks([]);
+    yticks([0]);
+    yticklabels(num2str(100*(i-1)));
+    set(ax2{i}, 'FontName', 'Times New Roman Bold', 'FontSize', 11);
+end
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+yticks([0,0.4]);
+yticklabels({'900', '1000'});
 
-% Plot
-ax2 = subplot(2,2,2);
-hold on;
-[~,plot_1] = plot_shade(ax2, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax2, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
-patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'});
-axis tight
 
-% Axis
-xticks(100:100:700);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('V');
+for i = 1 : 10
+    ax2{i}.Position = [ax2{i}.Position(1)-0.07+(0.012*(i-1)), ax2{i}.Position(2)+0.03, ax2{i}.Position(3)+0.03, ax2{i}.Position(4)+0.03];
+end
 
-% Texts
-t = title('RW-V', 'FontSize', 12);
-t.Position(2) = 1.05;
-t.FontSize = 13;
-set(ax2, 'FontName', 'Times New Roman Bold');
-text(-50,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
-
-% Extend
-ax2.Position = [ax2.Position(1), ax2.Position(2), ax2.Position(3)+0.07, ax2.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 3c          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+value = 'alpha';
 model = 'EH';
-mode = 'alpha';
-Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/alpha/Liao_et_al_2020_alpha_result.mat');
-X = Liao_et_al_2020_result.output_result.EH.x;
+Anderson_et_al_PLOS1_2011_result = load(strcat('../result_nll/Anderson_et_al_PLOS1_2011/', value, '/Anderson_et_al_PLOS1_2011_', value, '_result.mat'));
+X = Anderson_et_al_PLOS1_2011_result.output_result.(model).x;
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL2(X, schedule, model, num_repeat, ExperimentData, value);
 
 % Plot
-ax3 = subplot(2,2,3);
+ax3 = subplot(3,10,21:25);
 hold on;
-[~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax3, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
-patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'});
-axis tight
+[~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
+[~,plot_2] = plot_shade(ax3, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
+legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
+%axis tight
 
 % Axis
-xticks(100:100:700);
+xticks(0:100:1000);
 ylim([0,2]);
-xlabel('Trials');
-ylabel('alpha');
+xlabel('Trials', 'FontSize', 13);
+ylabel('alpha', 'FontSize', 13);
 
 % Texts
 t = title('EH-alpha');
-t.Position(2) = 2.1;
+t.Position(2) = 2.05;
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
-text(-50,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
-% Extend
-ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.07, ax3.Position(4)];
+% Extend?
+ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.06, ax3.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 3d          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-model = 'SPH';
-mode = 'alpha';
-Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/alpha/Liao_et_al_2020_alpha_result.mat');
-X = Liao_et_al_2020_result.output_result.SPH.x;
+value = 'V';
+model = 'RW';
+Anderson_et_al_PLOS1_2011_result = load(strcat('../result_nll/Anderson_et_al_PLOS1_2011/', value, '/Anderson_et_al_PLOS1_2011_', value, '_result.mat'));
+X = Anderson_et_al_PLOS1_2011_result.output_result.(model).x;
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL2(X, schedule, model, num_repeat, ExperimentData, value);
 
 % Plot
-ax4 = subplot(2,2,4);
+ax4 = subplot(3,10,26:30);
 hold on;
-[~,plot_1] = plot_shade(ax4, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax4, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
-patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'});
+[~,plot_1] = plot_shade(ax4, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
+[~,plot_2] = plot_shade(ax4, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
+legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
 axis tight
 
 % Axis
-xticks(100:100:700);
-xlabel('Trials');
-ylabel('alpha');
+xticks(0:100:1000);
+ylim([0,1]);
+xlabel('Trials', 'FontSize', 13);
+ylabel('V', 'FontSize', 13);
 
 % Texts
-t = title('SPH-alpha');
+t = title('RW-V');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');
-text(-50,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
-% Extend
-ax4.Position = [ax4.Position(1), ax4.Position(2), ax4.Position(3)+0.07, ax4.Position(4)];
+% Extend?
+ax4.Position = [ax4.Position(1)+0.01, ax4.Position(2), ax4.Position(3)+0.06, ax4.Position(4)];
 
 saveas(fig, 'Fig3.png');

@@ -8,8 +8,8 @@ addpath('../');
 addpath('../../helper_function');
 addpath('../experiments');
 
-CC.high = [0,0,0]; % stimulus condition where the RT should be longer than the low condition
-CC.low = [0.5, 0.5, 0.5]; % stimulus condition where the RT should be shorter than the high condition
+CC.high = [0.8902,0.3176,0.3569]; % stimulus condition where the RT should be longer than the low condition
+CC.low = [0.3608,0.6510,0.7137]; % stimulus condition where the RT should be shorter than the high condition
 num_repeat = 500;
 
 fig = figure(1);
@@ -39,8 +39,8 @@ axis tight
 % Axis
 xticks(50:50:600);
 ylim([0,1]);
-xlabel('Trials');
-ylabel('V');
+xlabel('Trials', 'FontSize', 13);
+ylabel('V', 'FontSize', 13); 
 
 % Texts
 t = title('Anderson (2016)');
@@ -75,11 +75,11 @@ axis tight
 % Axis
 xticks(50:50:450);
 ylim([0,1]);
-xlabel('Trials');
-ylabel('V');
+xlabel('Trials', 'FontSize', 13);
+ylabel('V', 'FontSize', 13);
 
 % Texts
-t = title('Anderson & Halpern (2017)', 'FontSize', 12);
+t = title('Anderson & Halpern (2017) Exp1', 'FontSize', 12);
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax2, 'FontName', 'Times New Roman Bold');
@@ -110,11 +110,11 @@ axis tight
 
 % Axis
 ylim([0,1]);
-xlabel('Trials');
-ylabel('V');
+xlabel('Trials', 'FontSize', 13);
+ylabel('V', 'FontSize', 13);
 
 % Texts
-t = title('Mine & Saiki (2015)');
+t = title('Mine & Saiki (2015) Exp2');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
@@ -145,11 +145,11 @@ axis tight
 
 % Axis
 ylim([0,1]);
-xlabel('Trials');
-ylabel('V');
+xlabel('Trials', 'FontSize', 13);
+ylabel('V', 'FontSize', 13);
 
 % Texts
-t = title('Anderson (2011)');
+t = title('Anderson et al. (2011b) Exp1');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');

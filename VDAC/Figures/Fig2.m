@@ -2,149 +2,112 @@
 % Draw figure 2
 
 %% parameters
-rng('shuffle');
 addpath('../..');
 addpath('../');
 addpath('../../helper_function');
 addpath('../experiments');
-addpath('../AndersonPLOS1 (2011)');
 
-CC.high = [0,0,0]; % stimulus condition where the RT should be longer than the low condition
-CC.low = [0.5, 0.5, 0.5]; % stimulus condition where the RT should be shorter than the high condition
+CC.high = [0.8902,0.3176,0.3569]; % stimulus condition where the RT should be longer than the low condition
+CC.low = [0.3608,0.6510,0.7137]; % stimulus condition where the RT should be shorter than the high condition
 num_repeat = 500;
 
-fig = figure(2);
+fig = figure(2); 
 clf(fig);
 fig.Position = [-1572,229,1265,671];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 2a          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Anderson_et_al_PLOS1_2011;
-model = 'M';
-value = 'alpha';
-Anderson_et_al_PLOS1_2011_result = load(strcat('../result_nll/Anderson_et_al_PLOS1_2011/', value, '/Anderson_et_al_PLOS1_2011_', value, '_result.mat'));
-X = Anderson_et_al_PLOS1_2011_result.output_result.(model).x;
+eval('Anderson_2016');
+Anderson_2016_result = load('../result_nll/Anderson_2016/alpha/Anderson_2016_alpha_result.mat');
+model = 'EH';
+mode = 'alpha';
+X = Anderson_2016_result.output_result.(model).x;
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL2(X, schedule, model, num_repeat, ExperimentData, value);
+[~, ~, alpha, ~, ~, ~, ~] = computeNLL(X, schedule, model, num_repeat, Exp_high_mean, 3, Exp_low_mean, 3, mode);
+RT = X(1) * ( alpha + X(2) );
+RT_test = RT(schedule.schedule_training_N+1:end,1:2,:);
+RT_test_mean = mean(mean(RT_test,3),1);
+RT_test_std = std(reshape(shiftdim(RT_test,1), 2, []), 0, 2);
+RT_model = [ RT_test_mean, nan];
 
+% high / Low / Control
+data = [RT_high, RT_low, RT_none;...
+    RT_none + RT_model];
+    
 % Plot
-ax1 = subplot(3,10,1:10);
+ax1 = subplot(1,2,1);
+
+bobject = bar(data', 'FaceColor', 'flat', 'LineStyle', 'none');
+bobject(1).CData = [0.4,0.4,0.4];
+bobject(2).CData = [CC.high;CC.low;[0.4,0.4,0.4]];
+
 hold on;
-[~,plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
-[~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
-legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
-axis tight
+line([bobject(1).XEndPoints(1),bobject(1).XEndPoints(1)], [RT_high-3, RT_high+3], 'Color', 'k', 'LineWidth', 2);
+line([bobject(1).XEndPoints(2),bobject(1).XEndPoints(2)], [RT_low-3, RT_low+3], 'Color', 'k', 'LineWidth', 2);
+line([bobject(1).XEndPoints(3),bobject(1).XEndPoints(3)], [RT_none-3, RT_none+3], 'Color', 'k', 'LineWidth', 2);
 
 % Axis
-ylim([0.4,1]);
-xticks([]);
-ylabel('alpha');
+ylim([670,710]);
+ylabel('RT (ms)', 'FontSize', 13);
 
 % Texts
-t = title('M-alpha');
-t.Position(2) = 1.05;
+t = title('Anderson (2016)');
+t.Position(2) = 710 + (710-670)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
-text(-50,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+set(ax1, 'FontSize', 13);
+text(-60,565,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+xticklabels({'High-value', 'Low-value', 'Former nontarget'});
 
-% Extend?
-ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07*2, ax1.Position(4)];
+% Extend 
+ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07, ax1.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 2b          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ax2 = cell(10,1);
-for i = 1 : 10
-    ax2{i} = subplot(3,10,10+i);
-    cla(ax2{i});
-    ax2{i}.View = [90, -90];
-    hold on;
-    bar((1:50)-0.25, SimulationResult.HighTarget.Distribution{i}, 'FaceColor', CC.high, 'BarWidth',0.75, 'EdgeAlpha', 0);
-    bar((1:50)+0.25, SimulationResult.LowTarget.Distribution{i}, 'FaceColor', CC.low, 'BarWidth',0.75, 'EdgeAlpha', 0);
-    plot(ExperimentResult.HighTarget.Distribution{i}, 'Color', CC.high, 'LineWidth', 1);
-    plot(ExperimentResult.LowTarget.Distribution{i}, 'Color', CC.low, 'LineWidth', 1);
-    xlim([21,50]);
-    ylim([0,0.4]);
-    xticks([]);
-    yticks([0]);
-    yticklabels(num2str(100*(i-1)));
-    set(ax2{i}, 'FontName', 'Times New Roman Bold', 'FontSize', 11);
-end
-
-yticks([0,0.4]);
-yticklabels({'900', '1000'});
-
-
-for i = 1 : 10
-    ax2{i}.Position = [ax2{i}.Position(1)-0.07+(0.012*(i-1)), ax2{i}.Position(2)+0.03, ax2{i}.Position(3)+0.03, ax2{i}.Position(4)+0.03];
-end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%            Figure 2c          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-value = 'alpha';
+eval('Mine_Saiki_2015');
+Mine_Saiki_2015_result = load('../result_nll/Mine_Saiki_2015/alpha/Mine_Saiki_2015_alpha_result.mat');
+X = Mine_Saiki_2015_result.output_result.EH.x;
 model = 'EH';
-Anderson_et_al_PLOS1_2011_result = load(strcat('../result_nll/Anderson_et_al_PLOS1_2011/', value, '/Anderson_et_al_PLOS1_2011_', value, '_result.mat'));
-X = Anderson_et_al_PLOS1_2011_result.output_result.(model).x;
+mode = 'alpha';
+[~, ~, alpha, ~, ~, ~, ~] = computeNLL(X, schedule, model, num_repeat, Exp_high_mean, 3, Exp_low_mean, 3, mode);
+RT = X(1) * ( alpha + X(2) );
+RT_test = RT(schedule.schedule_training_N+1:end,1:2,:);
+RT_test_mean = mean(mean(RT_test,3),1);
+RT_test_std = std(reshape(shiftdim(RT_test,1), 2, []), 0, 2);
+RT_model = [ RT_test_mean, nan];
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL2(X, schedule, model, num_repeat, ExperimentData, value);
-
+% high / Low / Control
+data = [RT_high, RT_low, RT_none;...
+    RT_none + RT_model];
+    
 % Plot
-ax3 = subplot(3,10,21:25);
+ax2 = subplot(1,2,2);
+
+bobject = bar(data', 'FaceColor', 'flat', 'LineStyle', 'none');
+bobject(1).CData = [0.4,0.4,0.4];
+bobject(2).CData = [CC.high;CC.low;[0.4,0.4,0.4]];
+
 hold on;
-[~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
-[~,plot_2] = plot_shade(ax3, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
-legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
-%axis tight
+line([bobject(1).XEndPoints(1),bobject(1).XEndPoints(1)], [RT_high-3, RT_high+3], 'Color', 'k', 'LineWidth', 2);
+line([bobject(1).XEndPoints(2),bobject(1).XEndPoints(2)], [RT_low-3, RT_low+3], 'Color', 'k', 'LineWidth', 2);
+line([bobject(1).XEndPoints(3),bobject(1).XEndPoints(3)], [RT_none-3, RT_none+3], 'Color', 'k', 'LineWidth', 2);
 
 % Axis
-xticks(0:100:1000);
-ylim([0,2]);
-xlabel('Trials');
-ylabel('alpha');
+ylim([840,880]);
+ylabel('RT (ms)', 'FontSize', 13);
 
 % Texts
-t = title('EH-alpha');
-t.Position(2) = 2.05;
+t = title('Mine & Saiki (2015) Exp2');
+t.Position(2) = 880 + (880-840)*0.02; % slightly move up
 t.FontSize = 13;
-set(ax3, 'FontName', 'Times New Roman Bold');
+set(ax2, 'FontName', 'Times New Roman Bold');
+set(ax2, 'FontSize', 13);
+text(-60,565,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+xticklabels({'High-value', 'Low-value', 'Control'});
 
-% Extend?
-ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.06, ax3.Position(4)];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%            Figure 2d          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-value = 'V';
-model = 'RW';
-Anderson_et_al_PLOS1_2011_result = load(strcat('../result_nll/Anderson_et_al_PLOS1_2011/', value, '/Anderson_et_al_PLOS1_2011_', value, '_result.mat'));
-X = Anderson_et_al_PLOS1_2011_result.output_result.(model).x;
-
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL2(X, schedule, model, num_repeat, ExperimentData, value);
-
-% Plot
-ax4 = subplot(3,10,26:30);
-hold on;
-[~,plot_1] = plot_shade(ax4, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
-[~,plot_2] = plot_shade(ax4, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
-legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
-axis tight
-
-% Axis
-xticks(0:100:1000);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('V');
-
-% Texts
-t = title('RW-V');
-t.Position(2) = 1.05;
-t.FontSize = 13;
-set(ax4, 'FontName', 'Times New Roman Bold');
-
-% Extend?
-ax4.Position = [ax4.Position(1)+0.01, ax4.Position(2), ax4.Position(3)+0.06, ax4.Position(4)];
+% Extend 
+ax2.Position = [ax2.Position(1), ax2.Position(2), ax2.Position(3)+0.07, ax2.Position(4)];
 
 saveas(fig, 'Fig2.png');
