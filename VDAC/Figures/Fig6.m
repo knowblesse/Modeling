@@ -68,7 +68,7 @@ hold on;
 [~,plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
 [~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
 patch([0, 936, 936, 0], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'Non Predictive', 'Predictive'}, 'Location','southeast');
+
 axis tight
 
 % Axis
@@ -82,10 +82,12 @@ t = title('LePelly et al. Exp2 EH-alpha');
 t.Position(2) = 1.05; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
+set(ax1, 'FontSize', 13);
+legend([plot_1{1}, plot_2{1}], {'Non Predictive', 'Predictive'}, 'Location','southeast', 'FontSize', 10);
 text(-50,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend 
-ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07, ax1.Position(4)];
+ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.10, ax1.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 6b          %%
@@ -116,10 +118,11 @@ t = title('LePelly Exp2 M-alpha', 'FontSize', 12);
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax2, 'FontName', 'Times New Roman Bold');
+set(ax2, 'FontSize', 13);
 text(-50,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax2.Position = [ax2.Position(1), ax2.Position(2), ax2.Position(3)+0.07, ax2.Position(4)];
+ax2.Position = [ax2.Position(1)-0.03, ax2.Position(2), ax2.Position(3)+0.10, ax2.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 6c          %%
@@ -174,7 +177,6 @@ hold on;
 [~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
 [~,plot_2] = plot_shade(ax3, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
 patch([576, 864, 864,576], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'uncertainty stimulus', 'certainty stimulus'});
 axis tight
 
 % Axis
@@ -188,10 +190,12 @@ t = title('Cho & Cho Exp2 SPH-alpha');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
+set(ax3, 'FontSize', 13);
+legend([plot_1{1}, plot_2{1}], {'uncertainty stimulus', 'certainty stimulus'}, 'FontSize', 10);
 text(-50,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.07, ax3.Position(4)];
+ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.10, ax3.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 6d          %%
@@ -220,9 +224,10 @@ t = title('Cho & Cho Exp2 M-alpha');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');
+set(ax4, 'FontSize', 13);
 text(-50,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax4.Position = [ax4.Position(1), ax4.Position(2), ax4.Position(3)+0.07, ax4.Position(4)];
+ax4.Position = [ax4.Position(1)-0.03, ax4.Position(2), ax4.Position(3)+0.10, ax4.Position(4)];
 
 saveas(fig, 'Fig6.png');

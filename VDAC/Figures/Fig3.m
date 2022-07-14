@@ -33,19 +33,20 @@ ax1 = subplot(3,10,1:10);
 hold on;
 [~,plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
 [~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
-legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
 axis tight
 
 % Axis
 ylim([0.4,1]);
 xticks([]);
-ylabel('alpha', 'FontSize', 13);
+ylabel('alpha');
 
 % Texts
 t = title('M-alpha');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
+set(ax1, 'FontSize', 13);
+legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'}, 'FontSize',10);
 text(-50,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend?
@@ -70,6 +71,7 @@ for i = 1 : 10
     yticks([0]);
     yticklabels(num2str(100*(i-1)));
     set(ax2{i}, 'FontName', 'Times New Roman Bold', 'FontSize', 11);
+    set(ax2{i}, 'FontSize',13);
 end
 
 yticks([0,0.4]);
@@ -96,20 +98,21 @@ ax3 = subplot(3,10,21:25);
 hold on;
 [~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
 [~,plot_2] = plot_shade(ax3, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
-legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
 %axis tight
 
 % Axis
 xticks(0:100:1000);
+yticks(0:2);
 ylim([0,2]);
-xlabel('Trials', 'FontSize', 13);
-ylabel('alpha', 'FontSize', 13);
+xlabel('Trials');
+ylabel('alpha');
 
 % Texts
 t = title('EH-alpha');
 t.Position(2) = 2.05;
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
+set(ax3, 'FontSize', 13);
 
 % Extend?
 ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.06, ax3.Position(4)];
@@ -129,20 +132,21 @@ ax4 = subplot(3,10,26:30);
 hold on;
 [~,plot_1] = plot_shade(ax4, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2.3,'Shade',true);
 [~,plot_2] = plot_shade(ax4, mean(V(:,2,:),3), std(V(:,2,:),0,3),'Color',CC.low,'LineWidth',2,'Shade',true);
-legend([plot_1{1}, plot_2{1}], {'high EV', 'low EV'});
 axis tight
 
 % Axis
 xticks(0:100:1000);
 ylim([0,1]);
-xlabel('Trials', 'FontSize', 13);
-ylabel('V', 'FontSize', 13);
+xlabel('Trials');
+yl = ylabel('V');
+yl.Position(1) = -50;
 
 % Texts
 t = title('RW-V');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');
+set(ax4, 'FontSize', 13);
 
 % Extend?
 ax4.Position = [ax4.Position(1)+0.01, ax4.Position(2), ax4.Position(3)+0.06, ax4.Position(4)];

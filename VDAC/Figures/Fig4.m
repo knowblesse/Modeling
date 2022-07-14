@@ -99,7 +99,7 @@ patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], 
 patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,0.3,0.3], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,0.3,0.3], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,0.3,0.3], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'});
+
 axis tight
 
 % Axis
@@ -113,10 +113,12 @@ t = title('EH-V');
 t.Position(2) = 1.05*0.3; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
+set(ax1, 'FontSize', 13);
+legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'}, 'FontSize', 10);
 text(-50,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend 
-ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07, ax1.Position(4)];
+ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.10, ax1.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 4b          %%
@@ -137,7 +139,6 @@ patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], 
 patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'});
 axis tight
 
 % Axis
@@ -151,10 +152,11 @@ t = title('RW-V', 'FontSize', 12);
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax2, 'FontName', 'Times New Roman Bold');
+set(ax2, 'FontSize', 13);
 text(-50,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax2.Position = [ax2.Position(1), ax2.Position(2), ax2.Position(3)+0.07, ax2.Position(4)];
+ax2.Position = [ax2.Position(1)-0.03, ax2.Position(2), ax2.Position(3)+0.10, ax2.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 4c          %%
@@ -175,7 +177,6 @@ patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], 
 patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'});
 axis tight
 
 % Axis
@@ -189,10 +190,11 @@ t = title('EH-alpha');
 t.Position(2) = 2.1;
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
+set(ax3, 'FontSize', 13);
 text(-50,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.07, ax3.Position(4)];
+ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.10, ax3.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 4d          %%
@@ -213,7 +215,6 @@ patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], 
 patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-legend([plot_1{1}, plot_2{1}], {'old high-rewareded', 'new high-rewarded'});
 axis tight
 
 % Axis
@@ -226,9 +227,10 @@ t = title('SPH-alpha');
 t.Position(2) = 1.05;
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');
+set(ax4, 'FontSize', 13);
 text(-50,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax4.Position = [ax4.Position(1), ax4.Position(2), ax4.Position(3)+0.07, ax4.Position(4)];
+ax4.Position = [ax4.Position(1)-0.03, ax4.Position(2), ax4.Position(3)+0.10, ax4.Position(4)];
 
 saveas(fig, 'Fig4.png');

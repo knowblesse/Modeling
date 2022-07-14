@@ -90,19 +90,19 @@ ax1 = subplot(2,2,1);
 xticks(100:100:800);
 yticks(0:0.2:1);
 ylim([0,1]);
-xlabel('Trials', 'FontSize', 13);
-ylabel('V', 'FontSize', 13);
-
+xlabel('Trials');
+ylabel('V');
 
 % Texts
 t = title('M-V');
 t.Position(2) = 1.05; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
+set(ax1, 'FontSize', 13);
 text(-50,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07, ax1.Position(4)];
+ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.10, ax1.Position(4)];
 
 ax3 = subplot(2,2,3);
 [~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.old,'LineWidth',2.3,'Shade',true);
@@ -111,8 +111,8 @@ ax3 = subplot(2,2,3);
 xticks(100:100:800);
 yticks(0:0.2:1);
 ylim([0,1]);
-xlabel('Trials', 'FontSize', 13);
-ylabel('alpha', 'FontSize', 13);
+xlabel('Trials');
+ylabel('alpha');
 
     
 % Texts
@@ -120,10 +120,11 @@ t = title('M-alpha');
 t.Position(2) = 1.05; % slightly move up
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
+set(ax3, 'FontSize', 13);
 text(-50,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.07, ax3.Position(4)];
+ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.10, ax3.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%           Figure 8b,d         %%
@@ -156,17 +157,18 @@ yticks(0:0.2:1);
 ylim([0,1]);
 xlabel('Trials', 'FontSize', 13);
 ylabel('V', 'FontSize', 13);
-legend([plot_1{1}, plot_2{1}, plot_3{1}], {'pre-exposed distractor', 'new distractor', 'old distractor'});
 
 % Texts
 t = title('SPH-V');
 t.Position(2) = 1.05; % slightly move up
 t.FontSize = 13;
 set(ax2, 'FontName', 'Times New Roman Bold');
+set(ax2, 'FontSize', 13);
+legend([plot_1{1}, plot_2{1}, plot_3{1}], {'pre-exposed distractor', 'new distractor', 'old distractor'}, 'FontSize', 10);
 text(-50,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax2.Position = [ax2.Position(1), ax2.Position(2), ax2.Position(3)+0.07, ax2.Position(4)];
+ax2.Position = [ax2.Position(1)-0.03, ax2.Position(2), ax2.Position(3)+0.10, ax2.Position(4)];
 
 ax4 = subplot(2,2,4);
 [~,plot_1] = plot_shade(ax4, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.old,'LineWidth',2.3,'Shade',true);
@@ -175,18 +177,19 @@ ax4 = subplot(2,2,4);
 xticks(100:100:800);
 yticks(0:0.2:1);
 ylim([0,1]);
-xlabel('Trials', 'FontSize', 13);
-ylabel('alpha', 'FontSize', 13);
-legend([plot_1{1}, plot_2{1}, plot_3{1}], {'pre-exposed distractor', 'new distractor', 'old distractor'});
+xlabel('Trials');
+ylabel('alpha');
     
 % Texts
 t = title('SPH-alpha');
 t.Position(2) = 1.05; % slightly move up
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');
+set(ax4, 'FontSize', 13);
+legend([plot_1{1}, plot_2{1}, plot_3{1}], {'pre-exposed distractor', 'new distractor', 'old distractor'}, 'FontSize', 10);
 text(-50,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax4.Position = [ax4.Position(1), ax4.Position(2), ax4.Position(3)+0.07, ax4.Position(4)];
+ax4.Position = [ax4.Position(1)-0.03, ax4.Position(2), ax4.Position(3)+0.10, ax4.Position(4)];
 
 saveas(fig, 'Fig8.png');

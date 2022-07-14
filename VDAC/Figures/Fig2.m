@@ -49,7 +49,7 @@ line([bobject(1).XEndPoints(3),bobject(1).XEndPoints(3)], [RT_none-3, RT_none+3]
 
 % Axis
 ylim([670,710]);
-ylabel('RT (ms)', 'FontSize', 13);
+ylabel('RT (ms)');
 
 % Texts
 t = title('Anderson (2016)');
@@ -96,7 +96,7 @@ line([bobject(1).XEndPoints(3),bobject(1).XEndPoints(3)], [RT_none-3, RT_none+3]
 
 % Axis
 ylim([840,880]);
-ylabel('RT (ms)', 'FontSize', 13);
+ylabel('RT (ms)');
 
 % Texts
 t = title('Mine & Saiki (2015) Exp2');

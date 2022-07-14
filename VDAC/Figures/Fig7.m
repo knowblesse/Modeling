@@ -89,11 +89,11 @@ t.Position(2) = 25 + (25)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
 set(ax1, 'FontSize', 13);
-text(-60,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+text(-40,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 xticklabels({'Non-Predictable', 'Predictable'});
 
 % Extend 
-ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07, ax1.Position(4)];
+ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.10, ax1.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 7b          %%
@@ -134,11 +134,11 @@ t.Position(2) = 25 + (25)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax2, 'FontName', 'Times New Roman Bold');
 set(ax2, 'FontSize', 13);
-text(-60,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+text(-40,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 xticklabels({'Non-Predictable', 'Predictable'});
 
 % Extend 
-ax2.Position = [ax2.Position(1), ax2.Position(2), ax2.Position(3)+0.07, ax2.Position(4)];
+ax2.Position = [ax2.Position(1)-0.03, ax2.Position(2), ax2.Position(3)+0.10, ax2.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 7c          %%
@@ -224,8 +224,8 @@ line([1.5, 1.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '-
 
 % Axis
 ylim([570,650]);
-ylabel('RT (ms)', 'FontSize', 13);
-legend([bobject(2), bobject(5)], {'Uncertainty Distractor', 'Certainty Distractor'});
+ylabel('RT (ms)');
+xticklabels({'Block1', 'Block2'});
 
 % Texts
 t = title('Cho & Cho (2021) Exp2 SPH-alpha');
@@ -233,11 +233,11 @@ t.Position(2) = 650 + (650-570)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
 set(ax3, 'FontSize', 13);
-text(-60,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
-xticklabels({'Block1', 'Block2'});
+text(-40,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+legend([bobject(2), bobject(5)], {'Uncertainty Distractor', 'Certainty Distractor'}, 'FontSize', 10);
 
 % Extend 
-ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.07, ax3.Position(4)];
+ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.10, ax3.Position(4)];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -283,7 +283,7 @@ line([1.5, 1.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '-
 % Axis
 ylim([570,650]);
 ylabel('RT (ms)', 'FontSize', 13);
-legend([bobject(2), bobject(5)], {'Uncertainty Distractor', 'Certainty Distractor'});
+xticklabels({'Block1', 'Block2'});
 
 % Texts
 t = title('Cho & Cho (2021) Exp2 M-alpha');
@@ -291,10 +291,9 @@ t.Position(2) = 650 + (650-570)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');
 set(ax4, 'FontSize', 13);
-text(-60,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
-xticklabels({'Block1', 'Block2'});
+text(-40,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend 
-ax4.Position = [ax4.Position(1), ax4.Position(2), ax4.Position(3)+0.07, ax4.Position(4)];
+ax4.Position = [ax4.Position(1)-0.03, ax4.Position(2), ax4.Position(3)+0.10, ax4.Position(4)];
 
 saveas(fig, 'Fig7.png');

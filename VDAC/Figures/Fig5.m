@@ -123,13 +123,14 @@ line([3.5, 3.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '-
 
 % Axis
 ylim([400,480]);
-ylabel('RT (ms)', 'FontSize', 13);
+ylabel('RT (ms)');
 
 % Texts
 t = title('Liao et al. (2020)');
 t.Position(2) = 480 + (480-400)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
+set(ax1, 'FontSize', 13);
 xticklabels({'Block1', 'Block2', 'Block3', 'Block4'});
 legend([bobject(2), bobject(5), bobject(8)], {'old high-value', 'new high-value', 'low-value'});
 
