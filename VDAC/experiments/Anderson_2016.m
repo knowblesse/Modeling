@@ -1,5 +1,5 @@
 %% Anderson 2016
-% Anderson 2016 simulation
+% Anderson 2016 simulation Exp1
 % Auditory
 
 %% Experiment Data

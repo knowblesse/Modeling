@@ -42,7 +42,7 @@ xlabel('Trials');
 ylabel('V'); 
 
 % Texts
-t = title('Anderson (2016)');
+t = title('Anderson (2016) Exp1');
 t.Position(2) = 1.05; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
