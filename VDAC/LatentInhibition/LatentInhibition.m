@@ -5,7 +5,7 @@ experiment = 'LatentInhibition';
 models = {'M', 'SPH', 'EH'};
 rng('shuffle');
 addpath('../../helper_function');
-addpath('../../');
+addpath('../');
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+

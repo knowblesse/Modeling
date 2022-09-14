@@ -2,7 +2,6 @@
 % Draw figure 2
 
 %% parameters
-addpath('../..');
 addpath('../');
 addpath('../../helper_function');
 addpath('../experiments');

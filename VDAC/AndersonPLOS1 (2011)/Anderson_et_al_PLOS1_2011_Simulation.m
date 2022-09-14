@@ -5,9 +5,9 @@ value = 'alpha';
 models = {'RW', 'M', 'SPH', 'EH'};
 
 rng('shuffle');
-addpath('../../helper_function');
-addpath('../../');
+addpath('../');
 addpath('../experiments');
+addpath('../../helper_function');
 
 %% parameters
 num_repeat = 200;
@@ -60,7 +60,7 @@ for model = models
     b = [opt_option.(model).b]';
     
     %% Optimization Model
-    fitfunction = @(X) computeNLL2(X, schedule, model, num_repeat, ExperimentData, value);
+    fitfunction = @(X) computeNLL_AndersonPLOS1(X, schedule, model, num_repeat, ExperimentData, value);
 
     %% Global Optimizer Options
     problem = createOptimProblem('fmincon',...

@@ -5,7 +5,6 @@
 
 %% parameters
 rng('shuffle');
-addpath('../..');
 addpath('../');
 addpath('../../helper_function');
 addpath('../experiments');

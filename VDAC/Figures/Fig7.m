@@ -4,7 +4,6 @@
 % SPH a M a Cho Exp2
 
 %% parameters
-addpath('../..');
 addpath('../');
 addpath('../../helper_function');
 addpath('../experiments');

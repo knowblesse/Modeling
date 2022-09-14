@@ -1,10 +1,11 @@
 %% Cho_Cho_Exp1_2021
 % Cho & Cho 2021 Experiment 1 simulation
 experiment = 'Cho_Cho_2021_Exp1';
-%value = 'V';
+value = 'V';
 models = {'RW', 'M', 'SPH', 'EH'};
 
 rng('shuffle');
+addpath('../');
 addpath('../../helper_function');
 
 %% Experiment Data
@@ -92,7 +93,7 @@ for model = models
     b = [opt_option.(model).b]';
     
     %% Optimization Model
-    fitfunction = @(X) computeNLLCho(X, schedule, model, num_repeat, ExperimentData, value);
+    fitfunction = @(X) computeNLL_Cho(X, schedule, model, num_repeat, ExperimentData, value);
 
     %% Global Optimizer Options
     problem = createOptimProblem('fmincon',...

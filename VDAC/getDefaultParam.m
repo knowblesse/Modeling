@@ -1,5 +1,5 @@
 function [param,opt_option] = getDefaultParam()
-%% getDefaultParameters
+%% getDefaultParam
 % small script for default model parameters
 % @Knowblesse 2021 21JUL21
 

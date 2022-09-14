@@ -6,7 +6,7 @@ models = {'RW', 'M', 'SPH', 'EH'};
 
 rng('shuffle');
 addpath('../../helper_function');
-addpath('../../');
+addpath('../');
 
 %% Experiment Data
 % all mean RT values are subtracted from RT of corresponding neutral condition
@@ -113,7 +113,7 @@ for model = models
     b = [opt_option.(model).b]';
     
     %% Optimization Model
-    fitfunction = @(X) computeNLL3(X, schedule, model, num_repeat, ExperimentData, value);
+    fitfunction = @(X) computeNLL_Liao(X, schedule, model, num_repeat, ExperimentData, value);
 
     %% Global Optimizer Options
     problem = createOptimProblem('fmincon',...

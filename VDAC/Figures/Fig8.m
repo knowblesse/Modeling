@@ -5,7 +5,6 @@
 %% Parameters
 rng(0);
 addpath('../../helper_function');
-addpath('../../');
 
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+

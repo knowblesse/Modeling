@@ -1,5 +1,5 @@
-function [negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, value)
-%% computeNLL3
+function [negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL_Liao(X, schedule, model, num_repeat, ExperimentData, value)
+%% computeNLL_Liao
 % Generate Experiment Distribution and calculate negative log likelihood. 
 % Param 
 % X : The first two factors are for the linear transformation of the V or alpha value.

@@ -4,6 +4,8 @@
 % 2021 Knowblesse
 % 21MAY11
 
+addpath('..');
+
 %% Color Constant
 CC.con_1 = [113,204,255]/255;
 CC.con_2 = [50,84,157]/255;
@@ -71,5 +73,4 @@ for model = 1:5
         a_plot_2.Visible = false;
     end 
     legend({'con_1','con_2','par_1','par_2'});
-    saveas(fig,strcat(model_names{model},'_animal'),'png');
 end   
