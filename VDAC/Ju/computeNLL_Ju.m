@@ -73,4 +73,10 @@ negativeloglikelihood = negativeloglikelihood - (...
     sum(log(normpdf(X(1)*(reshape(SimulationBResult.HighPred.Result, [], 1)+X(2)), ExperimentBData.High_Predictiveness_mean, 3))) + ...
     sum(log(normpdf(X(1)*(reshape(SimulationBResult.HighUnct.Result, [], 1)+X(2)), ExperimentBData.High_Uncertainty_mean, 3))) ...
     );
+
+SimulationResult = {SimulationAResult, SimulationBResult};
+ExperimentResult = {ExperimentAResult, ExperimentBResult};
+V = {V_A, V_B};
+alpha = {alpha_A, alpha_B};
+
 end
