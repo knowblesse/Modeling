@@ -15,21 +15,19 @@ ExperimentData.UncertaintyDistractor.SD = 3;
 ExperimentData.CertaintyDistractor.Mean = [604 - 589, 598 - 581]; 
 ExperimentData.CertaintyDistractor.SD = 3;
 
-
 %% Experiment Schedule
 % +--------+--------+--------+--------+---------------------------+
 % | CS1    | CS2    | CS3    | US     | US intensity(reward size) |
 % +--------+--------+--------+--------+---------------------------+
 % | 1 or 0 | 1 or 0 | 1 or 0 | 1 or 0 | float                     |
 % +--------+--------+--------+--------+---------------------------+
-high_reward = 1; %100 points
-low_reward = 0.25; %25 points
-
 schedule = struct();
 schedule.schedule_training = [...
-    repmat([1,0,0,1,high_reward],1,1);...
-    repmat([1,0,0,0,0],3,1);...
-    repmat([0,1,0,1,low_reward],4,1);...
+    repmat([1,0,0,1,0.90],1,1);... % uncertain 1
+    repmat([1,0,0,1,0.75],1,1);... % uncertain 2
+    repmat([1,0,0,1,0.25],1,1);... % uncertain 3
+    repmat([1,0,0,1,0.10],1,1);... % uncertain 4
+    repmat([0,1,0,1,0.50],4,1);...
     ]; % thesis : 192 trials x 3 blocks = 576 trials --> 8 trial set * 72 
 schedule.schedule_training_repeat = 72;
 schedule.schedule_training_N = size(schedule.schedule_training,1) * schedule.schedule_training_repeat;
