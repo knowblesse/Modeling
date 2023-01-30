@@ -1,10 +1,9 @@
-%% Fig8
-% Draw figure 8
-% Cho Exp1 SPH-alpha (best) M-alpha (worst)
-% Cho Exp2 SPH-alpha (best) M-alpha (worst)
+%% Fig9
+% Draw figure 9
+% SPH a M a Cho Exp1
+% SPH a M a Cho Exp2
 
 %% parameters
-rng('shuffle');
 addpath('../');
 addpath('../../helper_function');
 addpath('../Cho & Cho (2021)');
@@ -14,13 +13,14 @@ CC.low = [0.3608,0.6510,0.7137]; % stimulus condition where the RT should be sho
 num_repeat = 500;
 
 %% Make Figure
-fig = figure(8);
+fig = figure(9);
 clf(fig);
 fig.Position = [-1572,229,1265,671];
 
 %% Experiment Data & Schedule - Cho & Cho Exp1
 % Experiment Data
 % all mean RT values are subtracted from RT of corresponding neutral condition
+ExperimentData.NeutralRT = [606, 595]; 
 ExperimentData.UncertaintyDistractor.Mean = [641 - 606, 605 - 595];
 ExperimentData.UncertaintyDistractor.SD = 3;
 ExperimentData.CertaintyDistractor.Mean = [603 - 606, 613 - 595]; 
@@ -55,8 +55,10 @@ schedule.schedule_testing_N = size(schedule.schedule_testing,1) * schedule.sched
 
 schedule.N = schedule.schedule_training_N + schedule.schedule_testing_N;
 
+testBlocks = {[577,576+144], [577+144, 576+144+144]};
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%            Figure 8a          %%
+%%            Figure 9a          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 model = 'SPH';
 mode = 'alpha';
@@ -65,35 +67,54 @@ X = Cho_Cho_2021_Exp1_result.output_result.(model).x;
 
 [~, ~, alpha, ~, ~, ~] = computeNLL_Cho(X, schedule, model, num_repeat, ExperimentData, mode);
 
+RT = X(1) * ( alpha + X(2) );
+
+% uncertain real, uncertain simul, nan(for spacing), certain real, certain simul, nan, control
+data = nan(2,5);
+for block = 1 : 2
+    data(block,:) = [...
+        ExperimentData.UncertaintyDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 1, :), 'all'), nan,...
+        ExperimentData.CertaintyDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 3, :), 'all')...
+        ] + ExperimentData.NeutralRT(block);
+end
+
 % Plot
 ax1 = subplot(2,2,1);
-hold on;
-[~,plot_1] = plot_shade(ax1, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax1, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
-patch([576, 864, 864,576], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None');
 
-axis tight
+bobject = bar(data, 'FaceColor', 'flat', 'LineStyle', 'none', 'BarWidth', 1);
+bobject(1).CData = [0.4,0.4,0.4];
+bobject(2).CData = CC.high; % uncertainty
+bobject(4).CData = [0.4,0.4,0.4];
+bobject(5).CData = CC.low; % certainty
+
+hold on;
+for block = 1 : 2
+    for ibar = [1,4]
+        line([bobject(ibar).XEndPoints(block),bobject(ibar).XEndPoints(block)], [data(block,ibar)-3, data(block,ibar)+3], 'Color', 'k', 'LineWidth', 2);
+    end
+end
+
+% block separtor
+line([1.5, 1.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '--');
 
 % Axis
-xticks(100:100:800);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('alpha');
+ylim([570,650]);
+ylabel('RT (ms)');
+xticklabels({'Block1', 'Block2'});
 
 % Texts
-t = title('Cho & Cho Exp1 SPH-alpha');
-t.Position(2) = 1.05; % slightly move up
+t = title('Cho & Cho (2021) Exp1 SPH-alpha');
+t.Position(2) = 650 + (650-570)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
 set(ax1, 'FontSize', 13);
-legend([plot_1{1}, plot_2{1}], {'uncertainty stimulus', 'certainty stimulus'}, 'FontSize', 10);
-text(-50,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+text(-40,250,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend 
 ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.10, ax1.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%            Figure 8b          %%
+%%            Figure 9b          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 model = 'M';
 mode = 'alpha';
@@ -102,35 +123,57 @@ X = Cho_Cho_2021_Exp1_result.output_result.(model).x;
 
 [~, ~, alpha, ~, ~, ~] = computeNLL_Cho(X, schedule, model, num_repeat, ExperimentData, mode);
 
+RT = X(1) * ( alpha + X(2) );
+
+% uncertain real, uncertain simul, nan(for spacing), certain real, certain simul, nan, control
+data = nan(2,5);
+for block = 1 : 2
+    data(block,:) = [...
+        ExperimentData.UncertaintyDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 1, :), 'all'), nan,...
+        ExperimentData.CertaintyDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 3, :), 'all')...
+        ] + ExperimentData.NeutralRT(block);
+end
+
 % Plot
 ax2 = subplot(2,2,2);
-hold on;
-[~,plot_1] = plot_shade(ax2, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax2, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
-patch([576, 864, 864,576], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None');
 
-axis tight
+bobject = bar(data, 'FaceColor', 'flat', 'LineStyle', 'none', 'BarWidth', 1);
+bobject(1).CData = [0.4,0.4,0.4];
+bobject(2).CData = CC.high; % uncertainty
+bobject(4).CData = [0.4,0.4,0.4];
+bobject(5).CData = CC.low; % certainty
+
+hold on;
+for block = 1 : 2
+    for ibar = [1,4]
+        line([bobject(ibar).XEndPoints(block),bobject(ibar).XEndPoints(block)], [data(block,ibar)-3, data(block,ibar)+3], 'Color', 'k', 'LineWidth', 2);
+    end
+end
+
+% block separtor
+line([1.5, 1.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '--');
 
 % Axis
-xticks(100:100:800);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('alpha');
+ylim([570,650]);
+ylabel('RT (ms)');
+xticklabels({'Block1', 'Block2'});
 
 % Texts
-t = title('Cho & Cho Exp1 M-alpha');
-t.Position(2) = 1.05;
+t = title('Cho & Cho (2021) Exp1 M-alpha');
+t.Position(2) = 650 + (650-570)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax2, 'FontName', 'Times New Roman Bold');
 set(ax2, 'FontSize', 13);
-text(-50,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+text(-40,250,'B', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+legend([bobject(2), bobject(5)], {'Uncertainty Distractor', 'Certainty Distractor'}, 'FontSize', 10);
 
-% Extend
+% Extend 
 ax2.Position = [ax2.Position(1)-0.03, ax2.Position(2), ax2.Position(3)+0.10, ax2.Position(4)];
 
 %% Experiment Data & Schedule - Cho & Cho Exp2
 % Experiment Data
 % all mean RT values are subtracted from RT of corresponding neutral condition
+ExperimentData.NeutralRT = [589, 581];
 ExperimentData.UncertaintyDistractor.Mean = [621 - 589, 581 - 581];
 ExperimentData.UncertaintyDistractor.SD = 3;
 ExperimentData.CertaintyDistractor.Mean = [604 - 589, 598 - 581]; 
@@ -164,8 +207,10 @@ schedule.schedule_testing_N = size(schedule.schedule_testing,1) * schedule.sched
 
 schedule.N = schedule.schedule_training_N + schedule.schedule_testing_N;
 
+testBlocks = {[577,576+144], [577+144, 576+144+144]};
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%            Figure 8c          %%
+%%            Figure 9c          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 model = 'SPH';
 mode = 'alpha';
@@ -174,34 +219,55 @@ X = Cho_Cho_2021_Exp2_result.output_result.(model).x;
 
 [~, ~, alpha, ~, ~, ~] = computeNLL_Cho(X, schedule, model, num_repeat, ExperimentData, mode);
 
+RT = X(1) * ( alpha + X(2) );
+
+% uncertain real, uncertain simul, nan(for spacing), certain real, certain simul, nan, control
+data = nan(2,5);
+for block = 1 : 2
+    data(block,:) = [...
+        ExperimentData.UncertaintyDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 1, :), 'all'), nan,...
+        ExperimentData.CertaintyDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 3, :), 'all')...
+        ] + ExperimentData.NeutralRT(block);
+end
+
 % Plot
 ax3 = subplot(2,2,3);
+
+bobject = bar(data, 'FaceColor', 'flat', 'LineStyle', 'none', 'BarWidth', 1);
+bobject(1).CData = [0.4,0.4,0.4];
+bobject(2).CData = CC.high; % uncertainty
+bobject(4).CData = [0.4,0.4,0.4];
+bobject(5).CData = CC.low; % certainty
+
 hold on;
-[~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax3, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
-patch([576, 864, 864,576], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-axis tight
+for block = 1 : 2
+    for ibar = [1,4]
+        line([bobject(ibar).XEndPoints(block),bobject(ibar).XEndPoints(block)], [data(block,ibar)-3, data(block,ibar)+3], 'Color', 'k', 'LineWidth', 2);
+    end
+end
+
+% block separtor
+line([1.5, 1.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '--');
 
 % Axis
-xticks(100:100:800);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('alpha');
+ylim([570,650]);
+ylabel('RT (ms)');
+xticklabels({'Block1', 'Block2'});
 
 % Texts
-t = title('Cho & Cho Exp2 SPH-alpha');
-t.Position(2) = 1.05;
+t = title('Cho & Cho (2021) Exp2 SPH-alpha');
+t.Position(2) = 650 + (650-570)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax3, 'FontName', 'Times New Roman Bold');
 set(ax3, 'FontSize', 13);
-legend([plot_1{1}, plot_2{1}], {'uncertainty stimulus', 'certainty stimulus'}, 'FontSize', 10);
-text(-50,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+text(-40,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
-% Extend
+
+% Extend 
 ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.10, ax3.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%            Figure 8d          %%
+%%            Figure 9d          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 model = 'M';
 mode = 'alpha';
@@ -209,29 +275,51 @@ X = Cho_Cho_2021_Exp2_result.output_result.(model).x;
 
 [~, ~, alpha, ~, ~, ~] = computeNLL_Cho(X, schedule, model, num_repeat, ExperimentData, mode);
 
+RT = X(1) * ( alpha + X(2) );
+
+% uncertain real, uncertain simul, nan(for spacing), certain real, certain simul, nan, control
+data = nan(2,5);
+for block = 1 : 2
+    data(block,:) = [...
+        ExperimentData.UncertaintyDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 1, :), 'all'), nan,...
+        ExperimentData.CertaintyDistractor.Mean(block), mean(RT(testBlocks{block}(1):testBlocks{block}(2), 3, :), 'all')...
+        ] + ExperimentData.NeutralRT(block);
+end
+
 % Plot
 ax4 = subplot(2,2,4);
+
+bobject = bar(data, 'FaceColor', 'flat', 'LineStyle', 'none', 'BarWidth', 1);
+bobject(1).CData = [0.4,0.4,0.4];
+bobject(2).CData = CC.high; % uncertainty
+bobject(4).CData = [0.4,0.4,0.4];
+bobject(5).CData = CC.low; % certainty
+
 hold on;
-[~,plot_1] = plot_shade(ax4, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax4, mean(alpha(:,2,:),3), std(alpha(:,2,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
-patch([576, 864, 864,576], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
-axis tight
+for block = 1 : 2
+    for ibar = [1,4]
+        line([bobject(ibar).XEndPoints(block),bobject(ibar).XEndPoints(block)], [data(block,ibar)-3, data(block,ibar)+3], 'Color', 'k', 'LineWidth', 2);
+    end
+end
+
+% block separtor
+line([1.5, 1.5], ylim, 'Color', [0.4, 0.4, 0.4], 'LineWidth', 1, 'LineStyle', '--');
 
 % Axis
-xticks(100:100:800);
-ylim([0,1]);
-xlabel('Trials');
-ylabel('alpha');
+ylim([570,650]);
+ylabel('RT (ms)', 'FontSize', 13);
+xticklabels({'Block1', 'Block2'});
 
 % Texts
-t = title('Cho & Cho Exp2 M-alpha');
-t.Position(2) = 1.05;
+t = title('Cho & Cho (2021) Exp2 M-alpha');
+t.Position(2) = 650 + (650-570)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax4, 'FontName', 'Times New Roman Bold');
 set(ax4, 'FontSize', 13);
-text(-50,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+text(-40,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+legend([bobject(2), bobject(5)], {'Uncertainty Distractor', 'Certainty Distractor'}, 'FontSize', 10);
 
-% Extend
+% Extend 
 ax4.Position = [ax4.Position(1)-0.03, ax4.Position(2), ax4.Position(3)+0.10, ax4.Position(4)];
 
-saveas(fig, 'Fig8.png');
+saveas(fig, 'Fig9.png');
