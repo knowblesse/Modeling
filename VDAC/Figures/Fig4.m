@@ -76,7 +76,7 @@ testBlocks = {[90, 186], [276, 372], [462, 558], [648, 744]};
 %% Make Figure
 fig = figure(4);
 clf(fig);
-fig.Position = [-1572,229,1265,671];
+fig.Position = [421,21,1265,959];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,10 +87,10 @@ mode = 'V';
 Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/V/Liao_et_al_2020_V_result.mat');
 X = Liao_et_al_2020_result.output_result.EH.x;
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL_Liao(X, schedule, model, num_repeat, ExperimentData, mode);
 
 % Plot
-ax1 = subplot(2,2,1);
+ax1 = subplot(3,2,1);
 hold on;
 [~,plot_1] = plot_shade(ax1, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
 [~,plot_2] = plot_shade(ax1, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
@@ -127,10 +127,10 @@ mode = 'V';
 Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/V/Liao_et_al_2020_V_result.mat');
 X = Liao_et_al_2020_result.output_result.RW.x;
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL_Liao(X, schedule, model, num_repeat, ExperimentData, mode);
 
 % Plot
-ax2 = subplot(2,2,2);
+ax2 = subplot(3,2,2);
 hold on;
 [~,plot_1] = plot_shade(ax2, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
 [~,plot_2] = plot_shade(ax2, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
@@ -160,18 +160,92 @@ ax2.Position = [ax2.Position(1)-0.03, ax2.Position(2), ax2.Position(3)+0.10, ax2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 4c          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+model = 'SPH';
+mode = 'alpha';
+Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/alpha/Liao_et_al_2020_alpha_result.mat');
+X = Liao_et_al_2020_result.output_result.(model).x;
+
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL_Liao(X, schedule, model, num_repeat, ExperimentData, mode);
+
+% Plot
+ax3 = subplot(3,2,3);
+hold on;
+[~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
+[~,plot_2] = plot_shade(ax3, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
+patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
+patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
+patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
+patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
+axis tight
+
+% Axis
+xticks(100:100:700);
+xlabel('Trials');
+ylabel('alpha');
+
+% Texts
+t = title('SPH-alpha');
+t.Position(2) = 2.1;
+t.FontSize = 13;
+set(ax3, 'FontName', 'Times New Roman Bold');
+set(ax3, 'FontSize', 13);
+text(-50,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+
+% Extend
+ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.10, ax3.Position(4)];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%            Figure 4d          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+model = 'M';
+mode = 'V';
+Liao_et_al_2020_result = load(strcat('../result_nll/Liao_et_al_2020/', mode, '/Liao_et_al_2020_', mode, '_result.mat'));
+X = Liao_et_al_2020_result.output_result.(model).x;
+
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL_Liao(X, schedule, model, num_repeat, ExperimentData, mode);
+
+% Plot
+ax4 = subplot(3,2,4);
+hold on;
+[~,plot_1] = plot_shade(ax4, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
+[~,plot_2] = plot_shade(ax4, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
+patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
+patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
+patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
+patch([testBlocks{4}(1), testBlocks{4}(2), testBlocks{4}(2), testBlocks{4}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
+axis tight
+
+% Axis
+xticks(100:100:700);
+xlabel('Trials');
+ylabel('V');
+
+% Texts
+t = title('M-V');
+t.Position(2) = 1.05;
+t.FontSize = 13;
+set(ax4, 'FontName', 'Times New Roman Bold');
+set(ax4, 'FontSize', 13);
+text(-50,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+
+% Extend
+ax4.Position = [ax4.Position(1)-0.03, ax4.Position(2), ax4.Position(3)+0.10, ax4.Position(4)];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%            Figure 4e          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 model = 'EH';
 mode = 'alpha';
 Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/alpha/Liao_et_al_2020_alpha_result.mat');
 X = Liao_et_al_2020_result.output_result.EH.x;
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL_Liao(X, schedule, model, num_repeat, ExperimentData, mode);
 
 % Plot
-ax3 = subplot(2,2,3);
+ax5 = subplot(3,2,5);
 hold on;
-[~,plot_1] = plot_shade(ax3, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax3, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
+[~,plot_1] = plot_shade(ax5, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
+[~,plot_2] = plot_shade(ax5, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
 patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,2,2], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
@@ -188,28 +262,28 @@ ylabel('alpha');
 t = title('EH-alpha');
 t.Position(2) = 2.1;
 t.FontSize = 13;
-set(ax3, 'FontName', 'Times New Roman Bold');
-set(ax3, 'FontSize', 13);
-text(-50,250,'C', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+set(ax5, 'FontName', 'Times New Roman Bold');
+set(ax5, 'FontSize', 13);
+text(-50,250,'E', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax3.Position = [ax3.Position(1)-0.07, ax3.Position(2), ax3.Position(3)+0.10, ax3.Position(4)];
+ax5.Position = [ax5.Position(1)-0.07, ax5.Position(2), ax5.Position(3)+0.10, ax5.Position(4)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%            Figure 4d          %%
+%%            Figure 4f          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 model = 'SPH';
-mode = 'alpha';
-Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/alpha/Liao_et_al_2020_alpha_result.mat');
+mode = 'V';
+Liao_et_al_2020_result = load('../result_nll/Liao_et_al_2020/V/Liao_et_al_2020_V_result.mat');
 X = Liao_et_al_2020_result.output_result.SPH.x;
 
-[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL3(X, schedule, model, num_repeat, ExperimentData, mode);
+[negativeloglikelihood, V, alpha, SimulationResult, ExperimentResult, Model_element_number] = computeNLL_Liao(X, schedule, model, num_repeat, ExperimentData, mode);
 
 % Plot
-ax4 = subplot(2,2,4);
+ax6 = subplot(3,2,6);
 hold on;
-[~,plot_1] = plot_shade(ax4, mean(alpha(:,1,:),3), std(alpha(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
-[~,plot_2] = plot_shade(ax4, mean(alpha(:,3,:),3), std(alpha(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
+[~,plot_1] = plot_shade(ax6, mean(V(:,1,:),3), std(V(:,1,:),0,3),'Color',CC.high,'LineWidth',2,'Shade',true);
+[~,plot_2] = plot_shade(ax6, mean(V(:,3,:),3), std(V(:,3,:),0,3),'Color',CC.low,'LineWidth',2.3,'Shade',true);
 patch([testBlocks{1}(1), testBlocks{1}(2), testBlocks{1}(2), testBlocks{1}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{2}(1), testBlocks{2}(2), testBlocks{2}(2), testBlocks{2}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
 patch([testBlocks{3}(1), testBlocks{3}(2), testBlocks{3}(2), testBlocks{3}(1)], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeColor', 'None')
@@ -218,18 +292,19 @@ axis tight
 
 % Axis
 xticks(100:100:700);
+ylim([0,0.3]);
 xlabel('Trials');
-ylabel('alpha');
+ylabel('V');
 
 % Texts
-t = title('SPH-alpha');
-t.Position(2) = 1.05;
+t = title('SPH-V');
+t.Position(2) = 1.05 * 0.3;
 t.FontSize = 13;
-set(ax4, 'FontName', 'Times New Roman Bold');
-set(ax4, 'FontSize', 13);
-text(-50,250,'D', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
+set(ax6, 'FontName', 'Times New Roman Bold');
+set(ax6, 'FontSize', 13);
+text(-50,250,'F', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
 
 % Extend
-ax4.Position = [ax4.Position(1)-0.03, ax4.Position(2), ax4.Position(3)+0.10, ax4.Position(4)];
+ax6.Position = [ax6.Position(1)-0.03, ax6.Position(2), ax6.Position(3)+0.10, ax6.Position(4)];
 
 saveas(fig, 'Fig4.png');
