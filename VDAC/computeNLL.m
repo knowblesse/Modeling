@@ -56,8 +56,8 @@ end
 
 %% Generate Experiment & Model Distribution for plotting
 % Generate Experiment Distribution
-Exp_high = normpdf(X(1)*(linspace(0, 1, numBinModel)+X(2)), Exp_high_mean, 3);
-Exp_low  = normpdf(X(1)*(linspace(0, 1, numBinModel)+X(2)), Exp_low_mean, 3);
+Exp_high = normpdf(X(1)*(linspace(0, 1, numBinModel)+X(2)), Exp_high_mean, Exp_high_sd);
+Exp_low  = normpdf(X(1)*(linspace(0, 1, numBinModel)+X(2)), Exp_low_mean, Exp_low_sd);
 
 % Concatenate Simulation Result
 if strcmp(value, 'V')
@@ -77,7 +77,7 @@ Model_low  = histcounts(Model_low_result,linspace(0,1,numBinModel + 1))/Model_el
 
 %% Calculate Negative Log Likelihood
 negativeloglikelihood = -(...
-    sum(log(normpdf(X(1)*(reshape(Model_high_result, [], 1)+X(2)), Exp_high_mean, 3))) + ...
-    sum(log(normpdf(X(1)*(reshape(Model_low_result, [], 1)+X(2)), Exp_low_mean, 3)))...
+    sum(log(normpdf(X(1)*(reshape(Model_high_result, [], 1)+X(2)), Exp_high_mean, Exp_high_sd))) + ...
+    sum(log(normpdf(X(1)*(reshape(Model_low_result, [], 1)+X(2)), Exp_low_mean, Exp_low_sd)))...
     );
 end
