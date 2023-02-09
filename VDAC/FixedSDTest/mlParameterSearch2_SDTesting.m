@@ -26,6 +26,11 @@ if iscell(experiment)
 end
 eval(experiment);
 
+if iscell(value)
+    value = value{1};
+end
+
+
 %% Local Optimizer Options
 opts = optimoptions('fmincon',...
     'Display', 'none',...
@@ -50,7 +55,7 @@ for model = models
     %% Setup initial parameters and ranges of the parameter for optimization
     fitLowerbound = [0, -1];
     fitUpperbound = [100, 1];
-    x0 = [20, 0];
+    x0 = [30, 0.2];
     model = model{1};
     modelParam = eval(strcat('param.',model));
     fnames = fieldnames(modelParam);
@@ -79,7 +84,7 @@ for model = models
             'lb', fitLowerbound,...
             'ub', fitUpperbound,...
             'options', opts);
-    ms = MultiStart('MaxTime', 120, 'UseParallel', true);
+    ms = MultiStart('MaxTime', 1200, 'UseParallel', true);
     
     [output_result.(model).x, output_result.(model).fval, ~, output_result.(model).output, output_result.(model).solutions] = run(ms, problem, 12*5);
                         
