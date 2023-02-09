@@ -4,7 +4,7 @@
 models = {'M'};
 for experiment = {'Anderson_2011'}
     for value = {'V'}
-        for sd = [0.25, 0.5, 1, 2, 4, 8, 16, 32, 64]
+        for sd = [1, 2, 4, 8, 10, 15, 20]
             mlParameterSearch2_SDTesting(experiment, value, models, sd);
         end
     end
