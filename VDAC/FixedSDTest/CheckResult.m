@@ -76,6 +76,28 @@ for sd = [1, 2, 4, 8, 10, 15, 20, 30, 40]
     index = index + 1;
 end
 
+%% Ratio with RW alpha
+
+fval = zeros(8,7); % 7 models x 8 sd conditions
+
+idx = 1;
+for sd = [2, 4, 8, 10, 15, 20, 30, 40]
+    load(strcat('Anderson_2011_V_', num2str(sd), '_result.mat'));
+    fval_V = [...
+        output_result.RW.fval,...
+        output_result.M.fval,...
+        output_result.SPH.fval,...
+        output_result.EH.fval];
+    load(strcat('Anderson_2011_alpha_', num2str(sd), '_result.mat'));
+    fval_alpha = [...
+        output_result.M.fval,...
+        output_result.SPH.fval,...
+        output_result.EH.fval];
+    
+    fval(idx, :) = [fval_V, fval_alpha] ./ output_result.RW.fval;
+    idx = idx + 1;
+end
+
 
     
 
