@@ -19,11 +19,11 @@ fig.Position = [-1572,229,1265,671];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 1a          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-eval('Anderson_2016');
+eval('Anderson_2015');
 model = 'RW';
 mode = 'V';
-Anderson_2016_result = load('../result_nll/Anderson_2016/V/Anderson_2016_V_result.mat');
-X = Anderson_2016_result.output_result.RW.x;
+Anderson_2015_result = load('../result_nll/Anderson_2015/V/Anderson_2015_V_result.mat');
+X = Anderson_2015_result.output_result.RW.x;
 
 [negativeloglikelihood, V, alpha, Model_high, Model_low, Exp_high, Exp_low] = computeNLL(X, schedule, model, num_repeat, Exp_high_mean, 3, Exp_low_mean, 3, mode);
 
@@ -36,13 +36,13 @@ patch([480,size(V,1),size(V,1), 480], [0,0,1,1], 'k', 'FaceAlpha', 0.05, 'EdgeCo
 axis tight
 
 % Axis
-xticks(50:50:600);
+xticks(100:100:800);
 ylim([0,1]);
 xlabel('Trials');
 ylabel('V'); 
 
 % Texts
-t = title('Anderson (2016) Exp1');
+t = title('Anderson (2015) Exp1');
 t.Position(2) = 1.05; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');

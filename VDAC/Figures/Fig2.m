@@ -17,11 +17,11 @@ fig.Position = [-1572,229,1265,671];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%            Figure 2a          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-eval('Anderson_2016');
-Anderson_2016_result = load('../result_nll/Anderson_2016/alpha/Anderson_2016_alpha_result.mat');
+eval('Anderson_2015');
+Anderson_2015_result = load('../result_nll/Anderson_2015/alpha/Anderson_2015_alpha_result.mat');
 model = 'EH';
 mode = 'alpha';
-X = Anderson_2016_result.output_result.(model).x;
+X = Anderson_2015_result.output_result.(model).x;
 
 [~, ~, alpha, ~, ~, ~, ~] = computeNLL(X, schedule, model, num_repeat, Exp_high_mean, 3, Exp_low_mean, 3, mode);
 RT = X(1) * ( alpha + X(2) );
@@ -47,17 +47,18 @@ line([bobject(1).XEndPoints(2),bobject(1).XEndPoints(2)], [RT_low-3, RT_low+3], 
 line([bobject(1).XEndPoints(3),bobject(1).XEndPoints(3)], [RT_none-3, RT_none+3], 'Color', 'k', 'LineWidth', 2);
 
 % Axis
-ylim([670,710]);
+ylim([470,710]);
+ylim([700, 800]);
 ylabel('RT (ms)');
 
 % Texts
-t = title('Anderson (2016)');
-t.Position(2) = 710 + (710-670)*0.02; % slightly move up
+t = title('Anderson (2015) Exp1');
+t.Position(2) = 800 + (800-700)*0.02; % slightly move up
 t.FontSize = 13;
 set(ax1, 'FontName', 'Times New Roman Bold');
 set(ax1, 'FontSize', 13);
 text(-60,565,'A', 'FontSize', 18, 'FontName', 'Times New Roman Bold', 'Units', 'pixels');
-xticklabels({'High-value', 'Low-value', 'Former nontarget'});
+xticklabels({'High-value', 'Low-value', 'Control'});
 
 % Extend 
 ax1.Position = [ax1.Position(1)-0.07, ax1.Position(2), ax1.Position(3)+0.07, ax1.Position(4)];
